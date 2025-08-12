@@ -1,0 +1,187 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-trading-system.com/schemas/mcp_servers.json",
+  "title": "MCP Servers Configuration Schema",
+  "description": "Schema for MCP (Model Context Protocol) servers configuration",
+  "type": "object",
+  "properties": {
+    "servers": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9_-]*$": {
+          "$ref": "#/definitions/mcpServer"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["servers"],
+  "additionalProperties": false,
+  "definitions": {
+    "mcpServer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable name of the MCP server"
+        },
+        "repository": {
+          "type": "string",
+          "format": "uri",
+          "description": "Repository URL for the MCP server"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["stdio", "sse", "websocket"],
+          "description": "Connection type for the MCP server"
+        },
+        "command": {
+          "type": "string",
+          "description": "Command to start the MCP server"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Arguments for the server command"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the server's functionality"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of capabilities provided by the server"
+        },
+        "env": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Z][A-Z0-9_]*$": {
+              "type": "string"
+            }
+          },
+          "description": "Environment variables for the server",
+          "additionalProperties": false
+        },
+        "autoApprove": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of operations to auto-approve"
+        },
+        "disabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the server is disabled"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 300,
+          "description": "Timeout in seconds for server operations"
+        },
+        "retry_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Number of retries for failed operations"
+        },
+        "health_check": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable health checking"
+            },
+            "interval": {
+              "type": "integer",
+              "minimum": 5,
+              "maximum": 3600,
+              "description": "Health check interval in seconds"
+            },
+            "endpoint": {
+              "type": "string",
+              "description": "Health check endpoint"
+            }
+          },
+          "additionalProperties": false
+        },
+        "rate_limits": {
+          "type": "object",
+          "properties": {
+            "requests_per_minute": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum requests per minute"
+            },
+            "burst_size": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Burst size for rate limiting"
+            }
+          },
+          "additionalProperties": false
+        },
+        "security": {
+          "type": "object",
+          "properties": {
+            "allowed_domains": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "hostname"
+              },
+              "description": "Allowed domains for server communication"
+            },
+            "require_auth": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether authentication is required"
+            },
+            "auth_type": {
+              "type": "string",
+              "enum": ["api_key", "oauth", "jwt"],
+              "description": "Authentication type"
+            }
+          },
+          "additionalProperties": false
+        },
+        "monitoring": {
+          "type": "object",
+          "properties": {
+            "metrics_enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable metrics collection"
+            },
+            "log_level": {
+              "type": "string",
+              "enum": ["DEBUG", "INFO", "WARNING", "ERROR"],
+              "default": "INFO",
+              "description": "Logging level for this server"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["name", "type"],
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "type": {
+            "const": "stdio"
+          }
+        }
+      },
+      "then": {
+        "required": ["command"]
+      }
+    }
+  }
+}

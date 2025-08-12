@@ -1,0 +1,89 @@
+@startuml system_overview
+!theme plain
+title AI Multi-Agent Trading System - High-Level Architecture
+
+!define AGENT_COLOR #E1F5FE
+!define SERVICE_COLOR #F3E5F5
+!define EXTERNAL_COLOR #FFF3E0
+!define DATABASE_COLOR #E8F5E8
+
+package "AI Trading Agents" as agents {
+    component [Orchestrator\n(Port 8000)] as orchestrator <<AGENT_COLOR>>
+    component [Risk Manager\n(Port 8002)] as risk <<AGENT_COLOR>>
+    component [Market Analyst\n(Port 8003)] as analyst <<AGENT_COLOR>>
+    component [Trade Executor\n(Port 8005)] as executor <<AGENT_COLOR>>
+    component [Parameter Optimizer\n(Port 8006)] as optimizer <<AGENT_COLOR>>
+    component [News Analyst] as news <<AGENT_COLOR>>
+}
+
+package "Core Services" as services {
+    component [Portfolio Service\n(Port 8001)] as portfolio <<SERVICE_COLOR>>
+    component [Notification Service\n(Port 8004)] as notification <<SERVICE_COLOR>>
+    component [MCP Hub\n(Port 9000)] as mcp_hub <<SERVICE_COLOR>>
+}
+
+package "Data Layer" as data {
+    database [SQLite Databases] as db <<DATABASE_COLOR>>
+    storage [Configuration\nFiles] as config <<DATABASE_COLOR>>
+    storage [Logs] as logs <<DATABASE_COLOR>>
+}
+
+package "External Systems" as external {
+    cloud [Binance API] as binance <<EXTERNAL_COLOR>>
+    cloud [Federal Reserve\nData] as fed <<EXTERNAL_COLOR>>
+    cloud [Slack API] as slack <<EXTERNAL_COLOR>>
+    cloud [Hetzner Cloud] as hetzner <<EXTERNAL_COLOR>>
+    cloud [News Sources] as news_sources <<EXTERNAL_COLOR>>
+}
+
+package "MCP Ecosystem" as mcp {
+    component [MCP Servers\n(16+ servers)] as mcp_servers <<SERVICE_COLOR>>
+}
+
+' Main coordination flow
+orchestrator --> portfolio : "Trading Decisions"
+orchestrator --> risk : "Risk Assessment"
+orchestrator --> analyst : "Market Analysis"
+orchestrator --> executor : "Trade Execution"
+orchestrator --> optimizer : "Strategy Optimization"
+orchestrator --> news : "News Analysis"
+
+' Service interactions
+portfolio --> db : "Portfolio Data"
+risk --> db : "Risk Metrics"
+analyst --> db : "Market Data"
+notification --> slack : "Alerts & Reports"
+mcp_hub --> mcp_servers : "MCP Coordination"
+
+' External data flows
+analyst --> binance : "Market Data"
+analyst --> fed : "Economic Data"
+news --> news_sources : "News Feed"
+executor --> binance : "Trade Orders"
+portfolio --> binance : "Account Data"
+
+' Agent MCP connections
+orchestrator --> mcp_hub : "MCP Services"
+risk --> mcp_hub : "MCP Services"
+analyst --> mcp_hub : "MCP Services"
+executor --> mcp_hub : "MCP Services"
+optimizer --> mcp_hub : "MCP Services"
+
+' Configuration and logging
+orchestrator --> config : "System Config"
+orchestrator --> logs : "System Logs"
+
+note right of orchestrator
+  Central decision maker
+  Coordinates all agents
+  Manages trading strategies
+end note
+
+note right of mcp_hub
+  16+ MCP servers providing:
+  - Enhanced AI capabilities
+  - Data processing
+  - External integrations
+end note
+
+@enduml

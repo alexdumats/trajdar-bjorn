@@ -1,0 +1,26 @@
+{
+  "name": "embedding-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for text embedding and vector search to replace Ollama for codebase indexing",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mcp",
+    "embedding",
+    "vector",
+    "search",
+    "ollama",
+    "codebase",
+    "indexing"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/server": "^0.1.0",
+    "qdrant-js": "^1.3.1",
+    "sentence-transformers": "^2.2.2"
+  }
+}

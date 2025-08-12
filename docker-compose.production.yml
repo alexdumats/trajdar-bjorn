@@ -1,0 +1,249 @@
+version: '3.8'
+
+services:
+  # Core Trading Services
+  orchestrator:
+    build: 
+      context: .
+      dockerfile: Dockerfile.orchestrator
+    container_name: ai-trading-orchestrator
+    restart: unless-stopped
+    ports:
+      - "4001:4001"
+    environment:
+      - SERVICE_PORT=4001
+      - ENVIRONMENT=production
+      - PYTHONPATH=/app
+    env_file:
+      - .env.production
+    volumes:
+      - ./database:/app/database
+      - ./logs:/app/logs
+      - ./config:/app/config
+    depends_on:
+      - portfolio
+      - risk-manager
+      - notification
+      - mcp-hub
+    command: ["python", "src/orchestrator_service.py"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  portfolio:
+    build:
+      context: .
+      dockerfile: Dockerfile.portfolio
+    container_name: ai-trading-portfolio
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - SERVICE_PORT=8001
+      - ENVIRONMENT=production
+      - PYTHONPATH=/app
+    env_file:
+      - .env.production
+    volumes:
+      - ./database:/app/database
+      - ./logs:/app/logs
+      - ./config:/app/config
+    command: ["python", "src/portfolio_service.py"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  risk-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile.risk-manager
+    container_name: ai-trading-risk-manager
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    environment:
+      - SERVICE_PORT=8002
+      - ENVIRONMENT=production
+      - PYTHONPATH=/app
+    env_file:
+      - .env.production
+    volumes:
+      - ./database:/app/database
+      - ./logs:/app/logs
+      - ./config:/app/config
+    command: ["python", "src/signal_service.py"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  market-analyst:
+    build:
+      context: .
+      dockerfile: Dockerfile.market-analyst
+    container_name: ai-trading-market-analyst
+    restart: unless-stopped
+    ports:
+      - "8003:8003"
+    environment:
+      - SERVICE_PORT=8003
+      - ENVIRONMENT=production
+      - PYTHONPATH=/app
+    env_file:
+      - .env.production
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    command: ["python", "src/market_analyst/market_analyst_service.py"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  notification:
+    build:
+      context: .
+      dockerfile: Dockerfile.notification
+    container_name: ai-trading-notification
+    restart: unless-stopped
+    ports:
+      - "8004:8004"
+    environment:
+      - SERVICE_PORT=8004
+      - ENVIRONMENT=production
+      - PYTHONPATH=/app
+    env_file:
+      - .env.production
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    command: ["python", "src/notification_service.py"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  trade-executor:
+    build:
+      context: .
+      dockerfile: Dockerfile.trade-executor
+    container_name: ai-trading-trade-executor
+    restart: unless-stopped
+    ports:
+      - "8005:8005"
+    environment:
+      - SERVICE_PORT=8005
+      - ENVIRONMENT=production
+      - PYTHONPATH=/app
+    env_file:
+      - .env.production
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    command: ["python", "src/market_executor_service.py"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  parameter-optimizer:
+    build:
+      context: .
+      dockerfile: Dockerfile.parameter-optimizer
+    container_name: ai-trading-parameter-optimizer
+    restart: unless-stopped
+    ports:
+      - "8006:8006"
+    environment:
+      - SERVICE_PORT=8006
+      - ENVIRONMENT=production
+      - PYTHONPATH=/app
+    env_file:
+      - .env.production
+    volumes:
+      - ./database:/app/database
+      - ./logs:/app/logs
+      - ./config:/app/config
+    command: ["python", "src/parameter_optimizer_service.py"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Slack MCP Server for Nova Workspace
+  slack-mcp:
+    image: ghcr.io/korotovsky/slack-mcp-server:latest
+    container_name: ai-trading-slack-mcp
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - SLACK_MCP_HOST=0.0.0.0
+      - SLACK_MCP_PORT=3001
+      - SLACK_MCP_LOG_LEVEL=info
+      - SLACK_MCP_ADD_MESSAGE_TOOL=true
+    env_file:
+      - .env.production
+    volumes:
+      - ./mcp-cache:/app/cache
+      - ./logs:/app/logs
+      - ./mcp-servers/slack/.env:/app/.env
+    networks:
+      - ai-trading-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MCP Integration Hub
+  mcp-hub:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp-hub
+    container_name: ai-trading-mcp-hub
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      - SERVICE_PORT=9000
+      - ENVIRONMENT=production
+      - PYTHONPATH=/app
+      - MCP_CONFIG_PATH=/app/config/mcp_servers_optimized.yaml
+      - SLACK_MCP_ENDPOINT=http://slack-mcp:3001
+    env_file:
+      - .env.production
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+      - ./database:/app/database
+    depends_on:
+      - slack-mcp
+    command: ["python", "src/mcp_hub/main.py"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  database:
+    driver: local
+  logs:
+    driver: local
+
+networks:
+  default:
+    name: ai-trading-network
+    driver: bridge

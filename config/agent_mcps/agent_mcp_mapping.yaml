@@ -1,0 +1,21 @@
+agent_mcp_assignments:
+  market_news_analyst:
+    config_file: market_news_analyst_mcps.yaml
+    description: AI-powered market analysis and news sentiment interpretation
+    mcp_count: 3
+    model: mistral7b:latest
+  parameter_optimizer:
+    config_file: parameter_optimizer_mcps.yaml
+    description: Hyperparameter optimization with Optuna integration
+    mcp_count: 1
+    model: none
+  risk_manager:
+    config_file: risk_manager_mcps.yaml
+    description: AI-powered risk assessment and portfolio protection
+    mcp_count: 2
+    model: mistral7b:latest
+  trade_executor:
+    config_file: trade_executor_mcps.yaml
+    description: AI-powered fast trade execution and compliance checking
+    mcp_count: 1
+    model: phi3

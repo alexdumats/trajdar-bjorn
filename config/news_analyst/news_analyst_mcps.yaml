@@ -1,0 +1,173 @@
+# News Analyst Agent MCP Configuration
+# Specialized for news sentiment analysis and market impact assessment
+
+agent_description: AI-powered news sentiment analysis and market impact assessment
+agent_name: news_analyst
+model: mistral7b:latest
+
+# Environment variables for the News Analyst
+environment_variables:
+  OLLAMA_URL: ${OLLAMA_URL:http://localhost:11434}
+  NEWS_ANALYSIS_INTERVAL: ${NEWS_ANALYSIS_INTERVAL:600}
+  SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+  MCP_LOG_LEVEL: INFO
+  MCP_TIMEOUT: '30'
+  NEWS_API_KEY: ${NEWS_API_KEY}
+  REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID}
+  REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET}
+
+# News-specific MCP servers
+servers:
+  # RSS Fetcher for news feeds
+  rss_fetcher:
+    name: "RSS Fetcher MCP"
+    repository: "https://github.com/modelcontextprotocol/servers"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@modelcontextprotocol/server-rss"]
+    description: "RSS feed aggregation for crypto news"
+    capabilities:
+      - rss_feeds
+      - news_aggregation
+      - content_extraction
+      - feed_monitoring
+
+  # Search MCP for news search
+  search:
+    name: "Search MCP"
+    repository: "https://github.com/modelcontextprotocol/servers"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@modelcontextprotocol/server-search"]
+    description: "Web search for latest crypto news and developments"
+    capabilities:
+      - web_search
+      - news_search
+      - content_retrieval
+      - trend_monitoring
+
+  # Brave Search for additional news sources
+  brave_search:
+    name: "Brave Search MCP"
+    repository: "https://github.com/modelcontextprotocol/servers"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@modelcontextprotocol/server-brave-search"]
+    description: "Brave search engine for comprehensive news coverage"
+    capabilities:
+      - search_results
+      - news_articles
+      - real_time_data
+      - sentiment_sources
+    env:
+      BRAVE_API_KEY: ${BRAVE_API_KEY}
+
+# Shared services (used by multiple agents)
+shared_services:
+  # Slack MCP for notifications
+  slack:
+    name: "Slack MCP Server"
+    repository: "https://github.com/korotovsky/slack-mcp-server"
+    type: "stdio"
+    command: "go"
+    args: ["run", "/Users/alexdumats/trajdar_bjorn/mcp-servers/slack/cmd/slack-mcp-server/main.go", "--transport", "stdio"]
+    description: "Enhanced Slack integration for news analyst notifications"
+    capabilities:
+      - conversations_history
+      - conversations_add_message
+      - message_posting
+      - channel_management
+    env:
+      SLACK_MCP_XOXP_TOKEN: ${SLACK_BOT_TOKEN}
+      SLACK_MCP_ADD_MESSAGE_TOOL: "true"
+      SLACK_MCP_LOG_LEVEL: "info"
+      SLACK_MCP_USERS_CACHE: "/Users/alexdumats/trajdar_bjorn/.users_cache.json"
+      SLACK_MCP_CHANNELS_CACHE: "/Users/alexdumats/trajdar_bjorn/.channels_cache_v2.json"
+    autoApprove:
+      - conversations_add_message
+    disabled: false
+
+  # Context7 for documentation and research
+  context7:
+    name: "Context7 MCP"
+    repository: "https://github.com/upstash/context7-mcp"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@upstash/context7-mcp"]
+    description: "Documentation and research context for news analysis"
+    capabilities:
+      - documentation_search
+      - context_retrieval
+      - research_assistance
+      - knowledge_base
+
+# Agent-specific configuration
+agent_config:
+  slack_channel: "#news-analyst"
+  analysis_interval: 600  # 10 minutes
+  priority: 2  # Lower priority than market analyst
+  resource_intensive: true
+  cooldown_period: 30  # seconds between analyses
+  
+  # News analysis parameters
+  analysis_parameters:
+    # News sources to monitor
+    news_sources:
+      - "coindesk.com"
+      - "cointelegraph.com"
+      - "decrypt.co"
+      - "theblock.co"
+      - "bitcoinmagazine.com"
+      - "reuters.com/technology/crypto"
+      - "bloomberg.com/crypto"
+    
+    # RSS feeds to monitor
+    rss_feeds:
+      - "https://cointelegraph.com/rss"
+      - "https://coindesk.com/arc/outboundfeeds/rss/"
+      - "https://decrypt.co/feed"
+      - "https://www.theblock.co/rss.xml"
+    
+    # Search keywords for news monitoring
+    search_keywords:
+      - "bitcoin"
+      - "ethereum"
+      - "cryptocurrency"
+      - "blockchain"
+      - "crypto regulation"
+      - "institutional adoption"
+      - "defi"
+      - "nft"
+    
+    # Sentiment analysis parameters
+    sentiment_thresholds:
+      very_negative: -0.7
+      negative: -0.3
+      neutral_low: -0.1
+      neutral_high: 0.1
+      positive: 0.3
+      very_positive: 0.7
+    
+    # Impact assessment parameters
+    impact_factors:
+      regulatory: 0.8    # High impact
+      institutional: 0.7 # High impact
+      technical: 0.5     # Medium impact
+      market: 0.6        # Medium-high impact
+      social: 0.3        # Low-medium impact
+    
+    # Time horizon mapping
+    time_horizons:
+      breaking_news: "SHORT"      # 0-24 hours
+      regulatory: "MEDIUM"        # 1-30 days
+      institutional: "LONG"       # 30+ days
+      technical: "MEDIUM"         # 1-14 days
+    
+    # Confidence thresholds
+    min_confidence: 0.5
+    high_confidence: 0.8
+    
+    # Article processing limits
+    max_articles_per_analysis: 20
+    min_article_relevance: 0.6
+    lookback_hours: 24

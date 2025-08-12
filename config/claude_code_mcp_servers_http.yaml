@@ -1,0 +1,134 @@
+# Claude Code MCP Server Configuration (HTTP Version)
+# For use with Docker Compose deployment
+
+servers:
+  # Web Content Access
+  fetch:
+    name: "Fetch MCP Server"
+    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/fetch"
+    type: "http"
+    url: "http://localhost:3001"
+    description: "Web content fetching capabilities for retrieving and processing online information"
+    capabilities:
+      - fetch_url
+      - html_to_markdown
+      - content_chunking
+      - pagination
+    autoApprove:
+      - fetch_url
+    disabled: false
+
+  # File System Operations
+  filesystem:
+    name: "Filesystem MCP Server"
+    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem"
+    type: "http"
+    url: "http://localhost:3002"
+    description: "Comprehensive file system operations for reading, writing, and managing files"
+    capabilities:
+      - read_text_file
+      - read_media_file
+      - read_multiple_files
+      - write_file
+      - edit_file
+      - create_directory
+      - list_directory
+      - list_directory_with_sizes
+      - directory_tree
+      - move_file
+      - search_files
+      - get_file_info
+      - list_allowed_directories
+    autoApprove:
+      - read_text_file
+      - list_directory
+      - search_files
+    disabled: false
+
+  # Memory & Knowledge Management
+  memory:
+    name: "Memory MCP Server"
+    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/memory"
+    type: "http"
+    url: "http://localhost:3003"
+    description: "Persistent memory and knowledge graph capabilities for maintaining context across sessions"
+    capabilities:
+      - create_entities
+      - create_relations
+      - add_observations
+      - delete_entities
+      - delete_observations
+      - delete_relations
+      - read_graph
+      - search_nodes
+      - open_nodes
+    autoApprove:
+      - read_graph
+      - search_nodes
+      - open_nodes
+    disabled: false
+
+  # Git Operations
+  git:
+    name: "Git MCP Server"
+    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/git"
+    type: "http"
+    url: "http://localhost:3004"
+    description: "Git version control operations for code management and collaboration"
+    capabilities:
+      - clone_repository
+      - pull_repository
+      - push_changes
+      - create_branch
+      - checkout_branch
+      - commit_changes
+      - view_diff
+      - view_history
+      - merge_branches
+    autoApprove:
+      - view_diff
+      - view_history
+    disabled: false
+
+  # Enhanced Reasoning
+  sequentialthinking:
+    name: "Sequential Thinking MCP Server"
+    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking"
+    type: "http"
+    url: "http://localhost:3005"
+    description: "Step-by-step reasoning framework for complex problem solving"
+    capabilities:
+      - sequentialthinking
+    autoApprove:
+      - sequentialthinking
+    disabled: false
+
+  # Time Operations
+  time:
+    name: "Time MCP Server"
+    repository: "https://github.com/modelcontextprotocol/servers/tree/main/src/time"
+    type: "http"
+    url: "http://localhost:3006"
+    description: "Time-related operations and timezone conversions"
+    capabilities:
+      - get_current_time
+      - convert_time
+    autoApprove:
+      - get_current_time
+      - convert_time
+    disabled: false
+
+  # Documentation Access
+  context7:
+    name: "Context7 Documentation"
+    repository: "https://github.com/upstash/context7-mcp"
+    type: "http"
+    url: "http://localhost:3007"
+    description: "Access to up-to-date documentation for thousands of libraries and frameworks"
+    capabilities:
+      - resolve-library-id
+      - get-library-docs
+    autoApprove:
+      - resolve-library-id
+      - get-library-docs
+    disabled: false

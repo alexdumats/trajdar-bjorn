@@ -1,0 +1,132 @@
+# Market Analyst Agent MCP Configuration
+# Specialized for market data analysis and technical indicators
+
+agent_description: AI-powered market analysis using technical indicators and price data
+agent_name: market_analyst
+model: mistral7b:latest
+
+# Environment variables for the Market Analyst
+environment_variables:
+  OLLAMA_URL: ${OLLAMA_URL:http://localhost:11434}
+  MARKET_ANALYSIS_INTERVAL: ${MARKET_ANALYSIS_INTERVAL:300}
+  SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+  MCP_LOG_LEVEL: INFO
+  MCP_TIMEOUT: '30'
+
+# Market-specific MCP servers
+servers:
+  # Yahoo Finance for market data
+  yfinance:
+    name: "YFinance MCP"
+    repository: "https://github.com/Adity-star/mcp-yfinance-server"
+    type: "stdio"
+    command: "python"
+    args: ["-m", "mcp_yfinance_server"]
+    description: "Yahoo Finance market data integration"
+    capabilities:
+      - stock_data
+      - crypto_prices
+      - market_data
+      - financial_metrics
+      - historical_prices
+
+  # Coinpaprika for DeFi and crypto data
+  coinpaprika:
+    name: "Coinpaprika Dexpaprika"
+    repository: "https://github.com/coinpaprika/dexpaprika-mcp"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@coinpaprika/dexpaprika-mcp"]
+    description: "DeFi market data and DEX analytics"
+    capabilities:
+      - dex_data
+      - defi_analytics
+      - crypto_metrics
+      - liquidity_analysis
+
+  # FRED for economic indicators
+  fred:
+    name: "FRED Economic Data"
+    repository: "https://github.com/stefanoamorelli/fred-mcp-server"
+    type: "stdio"
+    command: "python"
+    args: ["-m", "fred_mcp_server"]
+    description: "Federal Reserve economic indicators"
+    capabilities:
+      - economic_indicators
+      - fed_data
+      - macro_analysis
+      - interest_rates
+    env:
+      FRED_API_KEY: ${FRED_API_KEY}
+
+# Shared services (used by multiple agents)
+shared_services:
+  # Slack MCP for notifications
+  slack:
+    name: "Slack MCP Server"
+    repository: "https://github.com/korotovsky/slack-mcp-server"
+    type: "stdio"
+    command: "go"
+    args: ["run", "/Users/alexdumats/trajdar_bjorn/mcp-servers/slack/cmd/slack-mcp-server/main.go", "--transport", "stdio"]
+    description: "Enhanced Slack integration for market analyst notifications"
+    capabilities:
+      - conversations_history
+      - conversations_add_message
+      - message_posting
+      - channel_management
+    env:
+      SLACK_MCP_XOXP_TOKEN: ${SLACK_BOT_TOKEN}
+      SLACK_MCP_ADD_MESSAGE_TOOL: "true"
+      SLACK_MCP_LOG_LEVEL: "info"
+      SLACK_MCP_USERS_CACHE: "/Users/alexdumats/trajdar_bjorn/.users_cache.json"
+      SLACK_MCP_CHANNELS_CACHE: "/Users/alexdumats/trajdar_bjorn/.channels_cache_v2.json"
+    autoApprove:
+      - conversations_add_message
+    disabled: false
+
+  # Time series forecasting
+  chronulus:
+    name: "Chronulus AI"
+    repository: "https://github.com/ChronulusAI/chronulus-mcp"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@chronulusai/mcp"]
+    description: "Time series forecasting and market prediction"
+    capabilities:
+      - time_series_forecast
+      - market_prediction
+      - trend_analysis
+      - volatility_modeling
+
+# Agent-specific configuration
+agent_config:
+  slack_channel: "#market-analyst"
+  analysis_interval: 300  # 5 minutes
+  priority: 1  # Higher priority than news analyst
+  resource_intensive: true
+  cooldown_period: 30  # seconds between analyses
+  
+  # Market analysis parameters
+  analysis_parameters:
+    # Technical indicators to focus on
+    indicators:
+      - rsi
+      - macd
+      - bollinger_bands
+      - volume_analysis
+      - support_resistance
+    
+    # Timeframes for analysis
+    timeframes:
+      - "1h"   # Short-term
+      - "4h"   # Medium-term
+      - "1d"   # Long-term
+    
+    # Confidence thresholds
+    min_confidence: 0.6
+    high_confidence: 0.8
+    
+    # Risk assessment parameters
+    volatility_threshold: 0.05
+    volume_threshold: 1.5

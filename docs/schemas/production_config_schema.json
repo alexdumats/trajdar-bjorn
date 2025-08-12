@@ -1,0 +1,353 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-trading-system.com/schemas/production_config.json",
+  "title": "AI Trading System Production Configuration",
+  "description": "Schema for the main production configuration file",
+  "type": "object",
+  "properties": {
+    "system": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "System name"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "System version in semver format"
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["development", "testing", "staging", "production"],
+          "description": "Deployment environment"
+        },
+        "timezone": {
+          "type": "string",
+          "default": "UTC",
+          "description": "System timezone"
+        }
+      },
+      "required": ["name", "version", "environment"],
+      "additionalProperties": false
+    },
+    "ollama": {
+      "type": "object",
+      "properties": {
+        "api_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Ollama API URL"
+        },
+        "model": {
+          "type": "string",
+          "description": "Ollama model name"
+        }
+      },
+      "required": ["api_url", "model"],
+      "additionalProperties": false
+    },
+    "serena": {
+      "type": "object",
+      "properties": {
+        "dashboard_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Serena dashboard URL"
+        },
+        "workspace_path": {
+          "type": "string",
+          "description": "Workspace path"
+        },
+        "auto_fix_enabled": {
+          "type": "boolean",
+          "description": "Enable auto-fix functionality"
+        }
+      },
+      "required": ["dashboard_url", "workspace_path"],
+      "additionalProperties": false
+    },
+    "trading": {
+      "type": "object",
+      "properties": {
+        "symbol": {
+          "type": "string",
+          "pattern": "^[A-Z]{3,10}[A-Z]{3,10}$",
+          "description": "Trading pair symbol (e.g., BTCUSDC)"
+        },
+        "base_currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3,10}$",
+          "description": "Base currency"
+        },
+        "quote_currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3,10}$",
+          "description": "Quote currency"
+        },
+        "starting_balance": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Starting balance for trading"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["paper", "live"],
+          "description": "Trading mode"
+        },
+        "strategy": {
+          "type": "string",
+          "enum": ["RSI", "MACD", "BollingerBands", "MultiStrategy"],
+          "description": "Primary trading strategy"
+        },
+        "trade_interval": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600,
+          "description": "Trade interval in seconds"
+        },
+        "risk_management": {
+          "$ref": "#/definitions/riskManagement"
+        },
+        "strategies": {
+          "$ref": "#/definitions/strategies"
+        }
+      },
+      "required": ["symbol", "base_currency", "quote_currency", "starting_balance", "mode", "strategy"],
+      "additionalProperties": false
+    },
+    "binance": {
+      "type": "object",
+      "properties": {
+        "api_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Binance API URL"
+        },
+        "testnet_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Binance testnet URL"
+        },
+        "api_key": {
+          "type": "string",
+          "description": "Binance API key (should be environment variable)"
+        },
+        "api_secret": {
+          "type": "string",
+          "description": "Binance API secret (should be environment variable)"
+        },
+        "rate_limit": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Rate limit for API calls"
+        }
+      },
+      "required": ["api_url"],
+      "additionalProperties": false
+    },
+    "slack": {
+      "type": "object",
+      "properties": {
+        "webhook_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Slack webhook URL"
+        },
+        "bot_token": {
+          "type": "string",
+          "description": "Slack bot token"
+        },
+        "channels": {
+          "type": "object",
+          "properties": {
+            "alerts": {
+              "type": "string",
+              "description": "Channel for alerts"
+            },
+            "trades": {
+              "type": "string",
+              "description": "Channel for trade notifications"
+            },
+            "system": {
+              "type": "string",
+              "description": "Channel for system notifications"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "database": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Database connection URL"
+        },
+        "max_connections": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum database connections"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Database timeout in seconds"
+        }
+      },
+      "additionalProperties": false
+    },
+    "logging": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+          "description": "Logging level"
+        },
+        "format": {
+          "type": "string",
+          "description": "Log format string"
+        },
+        "file_path": {
+          "type": "string",
+          "description": "Log file path"
+        },
+        "max_file_size": {
+          "type": "string",
+          "description": "Maximum log file size"
+        },
+        "backup_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of backup log files"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["system", "trading"],
+  "additionalProperties": false,
+  "definitions": {
+    "riskManagement": {
+      "type": "object",
+      "properties": {
+        "max_position_size": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Maximum position size as fraction of portfolio"
+        },
+        "stop_loss_percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Stop loss percentage"
+        },
+        "take_profit_percentage": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Take profit percentage"
+        },
+        "max_daily_trades": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum trades per day"
+        },
+        "max_drawdown": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Maximum allowed drawdown"
+        },
+        "risk_per_trade": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Risk per trade as fraction of portfolio"
+        }
+      },
+      "additionalProperties": false
+    },
+    "strategies": {
+      "type": "object",
+      "properties": {
+        "rsi": {
+          "type": "object",
+          "properties": {
+            "period": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 100,
+              "description": "RSI period"
+            },
+            "oversold_threshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 50,
+              "description": "RSI oversold threshold"
+            },
+            "overbought_threshold": {
+              "type": "number",
+              "minimum": 50,
+              "maximum": 100,
+              "description": "RSI overbought threshold"
+            },
+            "min_confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Minimum confidence threshold"
+            }
+          },
+          "additionalProperties": false
+        },
+        "macd": {
+          "type": "object",
+          "properties": {
+            "fast_period": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "MACD fast period"
+            },
+            "slow_period": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "MACD slow period"
+            },
+            "signal_period": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "MACD signal period"
+            }
+          },
+          "additionalProperties": false
+        },
+        "bollinger_bands": {
+          "type": "object",
+          "properties": {
+            "period": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 100,
+              "description": "Bollinger Bands period"
+            },
+            "std_dev": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 5,
+              "description": "Standard deviation multiplier"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

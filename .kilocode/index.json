@@ -1,0 +1,131 @@
+{
+  "version": "1.0",
+  "projectRoot": "/Users/alexdumats/trajdar_bjorn",
+  "indexedAt": "2025-08-12T03:41:00Z",
+  "filePatterns": [
+    "**/*.py",
+    "**/*.js",
+    "**/*.yml",
+    "**/*.yaml",
+    "**/*.md",
+    "**/*.sh"
+  ],
+  "excludePatterns": [
+    "**/.venv/**",
+    "**/node_modules/**",
+    "**/__pycache__/**",
+    "**/.git/**"
+  ],
+  "codeStructure": {
+    "services": [
+      {
+        "name": "orchestrator",
+        "path": "src/orchestrator_service.py",
+        "port": 8000,
+        "dependencies": ["FastAPI", "aiohttp", "Slack webhook logger"]
+      },
+      {
+        "name": "portfolio",
+        "path": "src/portfolio_service.py",
+        "port": 8001,
+        "dependencies": ["FastAPI", "sqlite3", "requests", "Slack webhook logger"]
+      },
+      {
+        "name": "signal",
+        "path": "src/signal_service.py",
+        "port": 8002,
+        "dependencies": ["FastAPI", "pandas", "numpy", "ta library"]
+      },
+      {
+        "name": "market-analyst",
+        "path": "src/market_analyst/market_analyst_service.py",
+        "port": 8003,
+        "dependencies": ["FastAPI", "requests", "praw", "pandas"]
+      },
+      {
+        "name": "notification",
+        "path": "src/notification_service.py",
+        "port": 8004,
+        "dependencies": ["FastAPI", "slack-sdk", "requests"]
+      },
+      {
+        "name": "trade-executor",
+        "path": "src/market_executor_service.py",
+        "port": 8005,
+        "dependencies": ["FastAPI", "python-binance", "requests"]
+      },
+      {
+        "name": "parameter-optimizer",
+        "path": "src/parameter_optimizer_service.py",
+        "port": 8006,
+        "dependencies": ["FastAPI", "optuna", "sqlite3"]
+      },
+      {
+        "name": "mcp-hub",
+        "path": "src/mcp_hub/main.py",
+        "port": 9000,
+        "dependencies": ["FastAPI", "subprocess", "yaml"]
+      }
+    ],
+    "utilities": [
+      {
+        "name": "config_manager",
+        "path": "src/utils/config_manager.py",
+        "dependencies": ["PyYAML"]
+      },
+      {
+        "name": "slack_webhook_logger",
+        "path": "src/utils/slack_webhook_logger.py",
+        "dependencies": ["requests", "logging"]
+      },
+      {
+        "name": "backtesting_engine",
+        "path": "src/backtesting_engine.py",
+        "dependencies": ["pandas", "numpy"]
+      },
+      {
+        "name": "paper_trading_engine",
+        "path": "src/paper_trading_engine.py",
+        "dependencies": ["sqlite3", "pandas"]
+      }
+    ],
+    "tests": {
+      "unit": "tests/unit/",
+      "integration": "tests/integration/",
+      "e2e": "tests/e2e/",
+      "performance": "tests/performance/",
+      "fixtures": "tests/fixtures/"
+    },
+    "configuration": {
+      "main": "config/",
+      "mcp": "config/mcp_servers.yaml",
+      "agents": "config/agent_mcps/"
+    },
+    "deployment": {
+      "scripts": "deploy/",
+      "docker": {
+        "compose": "docker-compose.production.yml",
+        "files": [
+          "Dockerfile.orchestrator",
+          "Dockerfile.portfolio",
+          "Dockerfile.risk-manager",
+          "Dockerfile.market-analyst",
+          "Dockerfile.notification",
+          "Dockerfile.trade-executor",
+          "Dockerfile.parameter-optimizer",
+          "Dockerfile.mcp-hub"
+        ]
+      },
+      "hetzner": {
+        "scripts": [
+          "deploy/hetzner_deploy.py",
+          "deploy/real_hetzner_deploy.py"
+        ],
+        "info": [
+          "deploy/deployment_info.json",
+          "deploy/real_deployment_info.json"
+        ]
+      }
+    }
+  }
+}

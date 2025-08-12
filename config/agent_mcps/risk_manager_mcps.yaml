@@ -1,0 +1,80 @@
+agent_description: AI-powered risk assessment and portfolio protection
+agent_name: risk_manager
+environment_variables:
+  DB_PATH: /app/database/paper_trading.db
+  FRED_API_KEY: your_fred_api_key
+  MCP_LOG_LEVEL: INFO
+  MCP_TIMEOUT: '30'
+  SLACK_BOT_TOKEN: your_slack_bot_token
+  TRADE_API_KEY: your_trade_api_key
+  TRADE_SECRET: your_trade_secret
+model: mistral7b:latest
+servers:
+  phoenix:
+    args:
+    - -y
+    - '@arize/phoenix-mcp'
+    capabilities:
+    - model_monitoring
+    - performance_tracking
+    - risk_drift_detection
+    - explainability
+    command: npx
+    description: ML model observability and risk monitoring
+    name: Phoenix ML Observability
+    repository: https://github.com/Arize-ai/phoenix/tree/main/js/packages/phoenix-mcp
+    type: stdio
+  sqlite:
+    args:
+    - -m
+    - mcp_sqlite
+    capabilities:
+    - database_queries
+    - portfolio_tracking
+    - trade_history
+    - performance_metrics
+    command: python
+    description: SQLite database operations for portfolio data
+    env:
+      SQLITE_DB_PATH: ${DB_PATH}
+    name: SQLite MCP
+    repository: https://github.com/modelcontextprotocol/servers-archived/tree/main/src/sqlite
+    type: stdio
+shared_services:
+  chronulus:
+    args:
+    - -y
+    - '@chronulusai/mcp'
+    capabilities:
+    - time_series_forecast
+    - market_prediction
+    - trend_analysis
+    - volatility_modeling
+    command: npx
+    description: Time series forecasting and prediction
+    name: Chronulus AI
+    repository: https://github.com/ChronulusAI/chronulus-mcp
+    type: stdio
+  slack:
+    args:
+    - run
+    - /Users/alexdumats/trajdar_bjorn/mcp-servers/slack/cmd/slack-mcp-server/main.go
+    - --transport
+    - stdio
+    autoApprove:
+    - conversations_add_message
+    capabilities:
+    - conversations_history
+    - conversations_add_message
+    - message_posting
+    - channel_management
+    command: go
+    description: Enhanced Slack integration for agent notifications
+    disabled: false
+    env:
+      SLACK_MCP_ADD_MESSAGE_TOOL: 'true'
+      SLACK_MCP_LOG_LEVEL: info
+      SLACK_MCP_XOXP_TOKEN: ${SLACK_BOT_TOKEN}
+    name: Slack MCP Server
+    repository: https://github.com/korotovsky/slack-mcp-server
+    type: stdio

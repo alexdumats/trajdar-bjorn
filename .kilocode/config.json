@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "indexPath": ".kilocode/index.json",
+  "scanOptions": {
+    "includePatterns": [
+      "**/*.py",
+      "**/*.js",
+      "**/*.yml",
+      "**/*.yaml",
+      "**/*.md",
+      "**/*.sh"
+    ],
+    "excludePatterns": [
+      "**/.venv/**",
+      "**/node_modules/**",
+      "**/__pycache__/**",
+      "**/.git/**"
+    ],
+    "maxDepth": 10,
+    "followSymlinks": false
+  },
+  "indexingOptions": {
+    "enableCodeIntelligence": true,
+    "enableSymbolSearch": true,
+    "enableDefinitionLookup": true,
+    "enableReferences": true,
+    "enableOutline": true,
+    "enableDiagnostics": true
+  },
+  "uiOptions": {
+    "showStatusBarItem": true,
+    "enableNotifications": true,
+    "enableCodeLens": true
+  },
+  "performance": {
+    "maxConcurrentFiles": 100,
+    "maxFileSize": 1048576,
+    "indexingInterval": 3600,
+    "useCache": true
+  }
+}

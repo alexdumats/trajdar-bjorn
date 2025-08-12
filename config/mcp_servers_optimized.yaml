@@ -1,0 +1,94 @@
+# Optimized MCP Server Configuration for Production
+# Minimal resource usage - only essential external API-based servers
+
+servers:
+  # Essential External API Services (no local processing needed)
+  
+  yfinance:
+    name: "YFinance MCP"
+    repository: "https://github.com/Adity-star/mcp-yfinance-server"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "mcp-yfinance-server"]
+    description: "Yahoo Finance data - external API, minimal resources"
+    capabilities:
+      - stock_data
+      - market_data
+      - crypto_prices
+    disabled: false
+    resource_light: true
+
+  fred:
+    name: "FRED Economic Data"
+    repository: "https://github.com/stefanoamorelli/fred-mcp-server"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@stefanoamorelli/fred-mcp-server"]
+    description: "Federal Reserve data - external API, minimal resources"
+    capabilities:
+      - economic_indicators
+      - interest_rates
+    env:
+      FRED_API_KEY: "${FRED_API_KEY}"
+    disabled: false
+    resource_light: true
+
+  # Lightweight Local Database (essential for portfolio tracking)
+  sqlite:
+    name: "SQLite MCP"
+    repository: "https://github.com/modelcontextprotocol/servers-archived/tree/main/src/sqlite"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@modelcontextprotocol/server-sqlite"]
+    description: "Lightweight database for portfolio data"
+    capabilities:
+      - database_queries
+      - trade_history
+    env:
+      SQLITE_DB_PATH: "${DB_PATH}"
+    disabled: false
+    resource_light: true
+
+  # External Slack Integration (uses Slack API, minimal local resources)
+  slack:
+    name: "Slack MCP"
+    repository: "https://github.com/mark3labs/mcp-slack"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@mark3labs/mcp-slack"]
+    description: "External Slack API integration - minimal resources"
+    capabilities:
+      - send_message
+      - channel_list
+      - message_history
+    env:
+      SLACK_BOT_TOKEN: "${SLACK_BOT_TOKEN}"
+    disabled: false
+    resource_light: true
+
+# REMOVED RESOURCE-INTENSIVE SERVERS:
+# - trade_agent: Complex trading logic (use direct Binance API instead)
+# - coinpaprika: Heavy data processing (use simple price APIs)
+# - phoenix: ML monitoring (defer until needed)
+# - chronulus: AI forecasting (use simpler technical analysis)
+# - optuna: Hyperparameter optimization (use basic parameter tuning)
+# - hetzner: Infrastructure management (handled separately)
+
+# Simplified configuration focuses on:
+# 1. Market data (YFinance - external API)
+# 2. Economic data (FRED - external API) 
+# 3. Database (SQLite - lightweight local)
+# 4. Notifications (Slack - external API)
+
+environment_variables:
+  # External API keys (no local processing)
+  FRED_API_KEY: "your_fred_api_key"
+  SLACK_BOT_TOKEN: "your_slack_bot_token"
+  
+  # Database (local but lightweight)
+  DB_PATH: "/app/database/trading.db"
+  
+  # General settings
+  MCP_LOG_LEVEL: "ERROR"  # Reduce logging overhead
+  MCP_TIMEOUT: "10"       # Faster timeouts
+  MCP_MAX_CONNECTIONS: "2" # Limit concurrent connections

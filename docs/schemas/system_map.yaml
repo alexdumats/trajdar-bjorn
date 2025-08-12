@@ -1,0 +1,444 @@
+# AI Trading System - Centralized System Map
+# Comprehensive mapping of all external dependencies, integrations, and system components
+
+meta:
+  version: "2.0.1"
+  last_updated: "2025-08-12"
+  description: "Centralized documentation of all external dependencies and system integrations"
+
+# Core AI Trading Services
+services:
+  orchestrator:
+    name: "AI Trading Orchestrator"
+    port: 8000
+    url: "http://localhost:8000"
+    description: "Central coordination service for AI trading agents"
+    health_endpoint: "/health"
+    dependencies:
+      - portfolio_service
+      - risk_manager
+      - market_analyst
+      - trade_executor
+      - parameter_optimizer
+      - notification_service
+      - mcp_hub
+    
+  portfolio:
+    name: "Portfolio Management Service"
+    port: 8001
+    url: "http://localhost:8001"
+    description: "Portfolio tracking and management"
+    health_endpoint: "/health"
+    dependencies:
+      - binance_api
+      - database
+    
+  risk_manager:
+    name: "Risk Management Service"
+    port: 8002
+    url: "http://localhost:8002"
+    description: "Risk assessment and monitoring"
+    health_endpoint: "/health"
+    dependencies:
+      - portfolio_service
+      - database
+    
+  market_analyst:
+    name: "Market Analysis Service"
+    port: 8003
+    url: "http://localhost:8003"
+    description: "Technical and fundamental market analysis"
+    health_endpoint: "/health"
+    dependencies:
+      - binance_api
+      - federal_reserve_api
+      - news_apis
+      - mcp_servers
+    
+  notification:
+    name: "Notification Service"
+    port: 8004
+    url: "http://localhost:8004"
+    description: "Slack notifications and alerts"
+    health_endpoint: "/health"
+    dependencies:
+      - slack_api
+    
+  trade_executor:
+    name: "Trade Execution Service"
+    port: 8005
+    url: "http://localhost:8005"
+    description: "Fast trade execution and order management"
+    health_endpoint: "/health"
+    dependencies:
+      - binance_api
+      - portfolio_service
+      - risk_manager
+    
+  parameter_optimizer:
+    name: "Parameter Optimization Service"
+    port: 8006
+    url: "http://localhost:8006"
+    description: "ML-based strategy optimization"
+    health_endpoint: "/health"
+    dependencies:
+      - market_analyst
+      - database
+      - mcp_servers
+    
+  mcp_hub:
+    name: "MCP Coordination Hub"
+    port: 9000
+    url: "http://localhost:9000"
+    description: "Central coordination for MCP servers"
+    health_endpoint: "/health"
+    dependencies:
+      - mcp_servers
+
+# External API Dependencies
+external_apis:
+  binance_api:
+    name: "Binance Cryptocurrency Exchange API"
+    base_url: "https://api.binance.com"
+    testnet_url: "https://testnet.binance.vision"
+    type: "REST/WebSocket"
+    description: "Cryptocurrency trading and market data"
+    rate_limits:
+      requests_per_minute: 1200
+      orders_per_10_seconds: 100
+    endpoints:
+      - "/api/v3/ticker/price"
+      - "/api/v3/klines"
+      - "/api/v3/order"
+      - "/api/v3/account"
+    authentication: "API Key + Secret"
+    status_page: "https://binance.statuspage.io"
+    
+  slack_api:
+    name: "Slack API for Notifications"
+    base_url: "https://slack.com/api"
+    type: "REST/WebSocket"
+    description: "Real-time notifications and bot interactions"
+    endpoints:
+      - "/chat.postMessage"
+      - "/conversations.list"
+      - "/users.info"
+    authentication: "Bot Token"
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    
+  federal_reserve_api:
+    name: "Federal Reserve Economic Data (FRED)"
+    base_url: "https://api.stlouisfed.org/fred"
+    type: "REST"
+    description: "Economic indicators and federal reserve data"
+    endpoints:
+      - "/series/observations"
+      - "/releases"
+      - "/tags"
+    authentication: "API Key"
+    rate_limits:
+      requests_per_day: 120000
+    
+  news_apis:
+    alpha_vantage:
+      name: "Alpha Vantage News & Sentiment"
+      base_url: "https://www.alphavantage.co/query"
+      type: "REST"
+      description: "Financial news and market sentiment"
+      authentication: "API Key"
+      
+    newsapi:
+      name: "NewsAPI"
+      base_url: "https://newsapi.org/v2"
+      type: "REST"
+      description: "General news and financial headlines"
+      authentication: "API Key"
+
+# MCP Server Ecosystem
+mcp_servers:
+  core_financial:
+    trade_agent:
+      name: "Trade Agent MCP"
+      repository: "https://github.com/Trade-Agent/trade-agent-mcp"
+      type: "stdio"
+      command: "npx"
+      capabilities:
+        - execute_strategy
+        - order_management
+        - compliance_checks
+        - risk_assessment
+      used_by:
+        - trade_executor
+        - risk_manager
+    
+    coinpaprika:
+      name: "Coinpaprika Dexpaprika"
+      repository: "https://github.com/coinpaprika/dexpaprika-mcp"
+      type: "stdio"
+      command: "npx"
+      capabilities:
+        - dex_data
+        - defi_analytics
+        - token_metrics
+        - liquidity_analysis
+      used_by:
+        - market_analyst
+    
+    yfinance:
+      name: "YFinance MCP"
+      repository: "https://github.com/modelcontextprotocol/servers"
+      type: "stdio"
+      command: "python"
+      capabilities:
+        - stock_data
+        - financial_metrics
+        - historical_data
+      used_by:
+        - market_analyst
+        - parameter_optimizer
+  
+  ai_enhancement:
+    claude_desktop:
+      name: "Claude Desktop Integration"
+      type: "internal"
+      capabilities:
+        - enhanced_reasoning
+        - code_generation
+        - analysis
+      used_by:
+        - orchestrator
+        - parameter_optimizer
+    
+    llama_local:
+      name: "Local Llama Model"
+      url: "http://localhost:11434"
+      type: "http"
+      capabilities:
+        - text_generation
+        - sentiment_analysis
+        - decision_support
+      used_by:
+        - market_analyst
+        - news_analyst
+  
+  data_processing:
+    filesystem:
+      name: "Filesystem MCP"
+      type: "internal"
+      capabilities:
+        - file_operations
+        - data_storage
+        - log_management
+      used_by:
+        - all_services
+    
+    sqlite:
+      name: "SQLite Database MCP"
+      type: "internal"
+      capabilities:
+        - data_persistence
+        - query_execution
+        - transaction_management
+      used_by:
+        - portfolio
+        - risk_manager
+        - market_analyst
+  
+  monitoring:
+    prometheus:
+      name: "Prometheus Metrics"
+      url: "http://localhost:9090"
+      type: "http"
+      capabilities:
+        - metrics_collection
+        - time_series_data
+        - alerting
+      used_by:
+        - all_services
+    
+    grafana:
+      name: "Grafana Dashboards"
+      url: "http://localhost:3000"
+      type: "http"
+      capabilities:
+        - data_visualization
+        - dashboard_creation
+        - alert_management
+      used_by:
+        - monitoring_stack
+
+# Database Dependencies
+databases:
+  sqlite_main:
+    name: "Main Trading Database"
+    path: "database/trading.db"
+    type: "SQLite"
+    description: "Primary database for trading operations"
+    tables:
+      - portfolio_positions
+      - trade_history
+      - risk_metrics
+      - strategy_parameters
+    
+  sqlite_market:
+    name: "Market Data Database"
+    path: "database/market_data.db"
+    type: "SQLite"
+    description: "Historical market data storage"
+    tables:
+      - ohlcv_data
+      - technical_indicators
+      - market_signals
+    
+  redis_cache:
+    name: "Redis Cache"
+    url: "redis://localhost:6379"
+    type: "Redis"
+    description: "High-speed caching for real-time data"
+    use_cases:
+      - market_data_cache
+      - session_storage
+      - rate_limiting
+
+# Infrastructure Dependencies
+infrastructure:
+  cloud_provider:
+    name: "Hetzner Cloud"
+    type: "VPS"
+    description: "Cloud infrastructure hosting"
+    regions:
+      - "eu-central"
+    services:
+      - compute_instances
+      - block_storage
+      - networking
+  
+  container_runtime:
+    name: "Docker"
+    version: "^24.0"
+    description: "Containerization platform"
+    
+  orchestration:
+    name: "Docker Compose"
+    version: "^2.0"
+    description: "Container orchestration"
+
+# Security & Authentication
+security:
+  api_keys:
+    binance:
+      environment_vars:
+        - BINANCE_API_KEY
+        - BINANCE_API_SECRET
+      rotation_policy: "90 days"
+      
+    slack:
+      environment_vars:
+        - SLACK_BOT_TOKEN
+        - SLACK_WEBHOOK_URL
+      rotation_policy: "Annual"
+    
+    federal_reserve:
+      environment_vars:
+        - FRED_API_KEY
+      rotation_policy: "Annual"
+  
+  encryption:
+    at_rest: "AES-256"
+    in_transit: "TLS 1.3"
+    key_management: "Environment variables"
+
+# Monitoring & Observability
+monitoring:
+  metrics:
+    prometheus:
+      url: "http://localhost:9090"
+      scrape_interval: "15s"
+      retention: "30d"
+    
+  visualization:
+    grafana:
+      url: "http://localhost:3000"
+      dashboards:
+        - trading_performance
+        - system_health
+        - risk_metrics
+  
+  logging:
+    level: "INFO"
+    format: "JSON"
+    retention: "30 days"
+    destinations:
+      - local_files
+      - slack_alerts
+  
+  alerting:
+    channels:
+      slack:
+        alerts_channel: "#trading-alerts"
+        system_channel: "#system-status"
+        trades_channel: "#trade-notifications"
+    
+    thresholds:
+      portfolio_loss: "5%"
+      system_downtime: "30s"
+      api_errors: "10/minute"
+
+# Network Configuration
+networking:
+  ports:
+    internal:
+      - 8000  # Orchestrator
+      - 8001  # Portfolio
+      - 8002  # Risk Manager
+      - 8003  # Market Analyst
+      - 8004  # Notification
+      - 8005  # Trade Executor
+      - 8006  # Parameter Optimizer
+      - 9000  # MCP Hub
+    
+    external:
+      - 80    # HTTP
+      - 443   # HTTPS
+      - 3000  # Grafana
+      - 9090  # Prometheus
+  
+  firewall_rules:
+    inbound:
+      - "Allow 443 from anywhere"
+      - "Allow 22 from management IPs"
+      - "Allow 3000,9090 from monitoring"
+    
+    outbound:
+      - "Allow HTTPS to api.binance.com"
+      - "Allow HTTPS to slack.com"
+      - "Allow HTTPS to api.stlouisfed.org"
+
+# Deployment Configuration
+deployment:
+  environments:
+    development:
+      trading_mode: "paper"
+      log_level: "DEBUG"
+      mcp_servers: "limited_set"
+    
+    production:
+      trading_mode: "live"
+      log_level: "INFO"
+      mcp_servers: "full_set"
+      backup_schedule: "daily"
+      monitoring: "enabled"
+  
+  backup_strategy:
+    databases:
+      frequency: "daily"
+      retention: "30 days"
+      destination: "cloud_storage"
+    
+    configurations:
+      frequency: "on_change"
+      versioning: "git"
+      
+    logs:
+      frequency: "real_time"
+      retention: "30 days"

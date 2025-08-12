@@ -1,0 +1,144 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Trading System Specific
+*.db
+*.db-shm
+*.db-wal
+database/
+data/
+logs/
+*.log
+*.pid
+pids/
+
+# Backups and Archives
+backups/
+*.tar.gz
+*backup*.tar.gz
+*deployment*.tar.gz
+fresh-deployment-*.tar.gz
+
+# Test Results and Coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+test_results/
+
+# Configuration with secrets (keep templates)
+config/production_config.yaml
+config/lightweight_trading_config.yaml
+config/agent_parameters.yaml
+config/trading_parameters.yaml
+*.env
+.env.*
+
+# MCP Data
+mcp-data/
+
+# MCP Servers (git submodules - track separately)
+mcp-servers/arxiv-mcp-server/
+mcp-servers/modelcontextprotocol-servers/
+mcp-servers/slack/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+.dockerignore
+
+# Node modules (for any JavaScript components)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# System monitoring
+monitor_system.sh.lock
+
+# Optimization and backtest results
+optimization_results_*.json
+backtest_results_*.json
+
+# System restart logs
+system_restart_*.log
+
+# SSH connection strings (security)
+ssh*
+
+# Cleanup reports
+*cleanup*.json
+refactor_cleanup_report.json
+
+# Prometheus config (may contain sensitive data)
+prometheus.yml
+
+# Grafana data
+grafana/data/
+
+# Redis dumps
+dump.rdb
+
+# Performance test data
+.benchmarks/

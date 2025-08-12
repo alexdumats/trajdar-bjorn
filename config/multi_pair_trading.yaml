@@ -1,0 +1,45 @@
+# Multi-Pair Trading Configuration
+# BTC, ETH, SOL trading against USDC
+
+trading_pairs:
+  BTCUSDC:
+    allocation: 0.40  # 40% of portfolio
+    min_order_size: 0.00001
+    max_order_size: 0.1
+    price_precision: 2
+    quantity_precision: 6
+    
+  ETHUSDC:
+    allocation: 0.35  # 35% of portfolio  
+    min_order_size: 0.001
+    max_order_size: 1.0
+    price_precision: 2
+    quantity_precision: 4
+    
+  SOLUSDC:
+    allocation: 0.25  # 25% of portfolio
+    min_order_size: 0.01
+    max_order_size: 10.0
+    price_precision: 3
+    quantity_precision: 3
+
+strategy_settings:
+  # RSI settings for each pair
+  rsi_period: 14
+  rsi_overbought: 70
+  rsi_oversold: 30
+  
+  # Risk management per pair
+  max_position_per_pair: 0.05  # 5% max position
+  stop_loss: 0.02              # 2% stop loss
+  take_profit: 0.04            # 4% take profit
+  
+portfolio_management:
+  rebalance_frequency: 3600    # Rebalance every hour
+  max_drawdown: 0.10          # 10% max drawdown
+  daily_loss_limit: 0.05      # 5% daily loss limit
+  
+monitoring:
+  price_check_interval: 30    # Check prices every 30 seconds
+  correlation_check: true     # Monitor pair correlations
+  volatility_adjustment: true # Adjust position sizes based on volatility

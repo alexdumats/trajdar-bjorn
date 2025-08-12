@@ -1,0 +1,463 @@
+openapi: 3.0.3
+info:
+  title: AI Trading System - Portfolio Service API
+  description: Portfolio management and trade execution service
+  version: 1.0.0
+servers:
+  - url: http://localhost:8001
+    description: Local development server
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      operationId: getHealth
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /portfolio:
+    get:
+      summary: Get current portfolio state
+      operationId: getPortfolio
+      tags:
+        - Portfolio
+      responses:
+        '200':
+          description: Portfolio retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortfolioState'
+
+  /execute_trade:
+    post:
+      summary: Execute a trade
+      operationId: executeTrade
+      tags:
+        - Trading
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TradeRequest'
+      responses:
+        '200':
+          description: Trade executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TradeResponse'
+        '400':
+          description: Invalid trade request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /check_stop_loss_take_profit:
+    get:
+      summary: Check stop loss and take profit triggers
+      operationId: checkStopLossTakeProfit
+      tags:
+        - Risk Management
+      responses:
+        '200':
+          description: Stop loss/take profit check completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  triggered_orders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TriggeredOrder'
+
+  /performance:
+    get:
+      summary: Get portfolio performance metrics
+      operationId: getPerformance
+      tags:
+        - Analytics
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [1d, 7d, 30d, 90d, 1y]
+            default: 30d
+      responses:
+        '200':
+          description: Performance metrics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformanceMetrics'
+
+  /trades:
+    get:
+      summary: Get trade history
+      operationId: getTrades
+      tags:
+        - Trading
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+            maximum: 1000
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Trade history retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trades:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Trade'
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+
+  /positions:
+    get:
+      summary: Get current positions
+      operationId: getPositions
+      tags:
+        - Portfolio
+      responses:
+        '200':
+          description: Current positions retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  positions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Position'
+
+  /portfolio-risk:
+    get:
+      summary: Get portfolio risk metrics
+      operationId: getPortfolioRisk
+      tags:
+        - Risk Management
+      responses:
+        '200':
+          description: Risk metrics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskMetrics'
+
+  /circuit-breaker-status:
+    get:
+      summary: Get circuit breaker status
+      operationId: getCircuitBreakerStatus
+      tags:
+        - Risk Management
+      responses:
+        '200':
+          description: Circuit breaker status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CircuitBreakerStatus'
+
+  /cache-stats:
+    get:
+      summary: Get cache statistics
+      operationId: getCacheStats
+      tags:
+        - System
+      responses:
+        '200':
+          description: Cache statistics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CacheStats'
+
+  /start-websocket:
+    post:
+      summary: Start WebSocket connection
+      operationId: startWebSocket
+      tags:
+        - System
+      responses:
+        '200':
+          description: WebSocket connection started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  websocket_url:
+                    type: string
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "healthy"
+        service:
+          type: string
+          example: "portfolio"
+        timestamp:
+          type: string
+          format: date-time
+
+    PortfolioState:
+      type: object
+      properties:
+        total_value:
+          type: number
+          format: double
+        cash_balance:
+          type: number
+          format: double
+        positions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Position'
+        last_updated:
+          type: string
+          format: date-time
+
+    Position:
+      type: object
+      properties:
+        symbol:
+          type: string
+          example: "BTCUSDT"
+        quantity:
+          type: number
+          format: double
+        average_price:
+          type: number
+          format: double
+        current_price:
+          type: number
+          format: double
+        unrealized_pnl:
+          type: number
+          format: double
+        unrealized_pnl_percent:
+          type: number
+          format: double
+
+    TradeRequest:
+      type: object
+      properties:
+        symbol:
+          type: string
+          example: "BTCUSDT"
+        side:
+          type: string
+          enum: [BUY, SELL]
+        type:
+          type: string
+          enum: [MARKET, LIMIT]
+        quantity:
+          type: number
+          format: double
+        price:
+          type: number
+          format: double
+          nullable: true
+        stop_loss:
+          type: number
+          format: double
+          nullable: true
+        take_profit:
+          type: number
+          format: double
+          nullable: true
+      required:
+        - symbol
+        - side
+        - type
+        - quantity
+
+    TradeResponse:
+      type: object
+      properties:
+        order_id:
+          type: string
+        symbol:
+          type: string
+        side:
+          type: string
+        quantity:
+          type: number
+          format: double
+        price:
+          type: number
+          format: double
+        status:
+          type: string
+        executed_at:
+          type: string
+          format: date-time
+
+    Trade:
+      type: object
+      properties:
+        id:
+          type: string
+        symbol:
+          type: string
+        side:
+          type: string
+          enum: [BUY, SELL]
+        quantity:
+          type: number
+          format: double
+        price:
+          type: number
+          format: double
+        fee:
+          type: number
+          format: double
+        executed_at:
+          type: string
+          format: date-time
+        strategy:
+          type: string
+
+    TriggeredOrder:
+      type: object
+      properties:
+        order_id:
+          type: string
+        symbol:
+          type: string
+        type:
+          type: string
+          enum: [STOP_LOSS, TAKE_PROFIT]
+        trigger_price:
+          type: number
+          format: double
+        current_price:
+          type: number
+          format: double
+
+    PerformanceMetrics:
+      type: object
+      properties:
+        total_return:
+          type: number
+          format: double
+        total_return_percent:
+          type: number
+          format: double
+        sharpe_ratio:
+          type: number
+          format: double
+        max_drawdown:
+          type: number
+          format: double
+        win_rate:
+          type: number
+          format: double
+        profit_factor:
+          type: number
+          format: double
+        period:
+          type: string
+
+    RiskMetrics:
+      type: object
+      properties:
+        portfolio_var:
+          type: number
+          format: double
+          description: Value at Risk
+        portfolio_beta:
+          type: number
+          format: double
+        concentration_risk:
+          type: number
+          format: double
+        leverage_ratio:
+          type: number
+          format: double
+
+    CircuitBreakerStatus:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        triggered:
+          type: boolean
+        trigger_count:
+          type: integer
+        last_triggered:
+          type: string
+          format: date-time
+          nullable: true
+
+    CacheStats:
+      type: object
+      properties:
+        hit_rate:
+          type: number
+          format: double
+        size:
+          type: integer
+        max_size:
+          type: integer
+        evictions:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+tags:
+  - name: Health
+    description: Service health monitoring
+  - name: Portfolio
+    description: Portfolio management operations
+  - name: Trading
+    description: Trade execution and history
+  - name: Risk Management
+    description: Risk monitoring and controls
+  - name: Analytics
+    description: Performance and analytics
+  - name: System
+    description: System operations

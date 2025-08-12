@@ -1,0 +1,369 @@
+version: '3.8'
+
+services:
+  # Separate Market Analyst Agent
+  market-analyst:
+    build: .
+    container_name: market-analyst-agent
+    restart: unless-stopped
+    ports:
+      - "8007:8007"
+    environment:
+      - SERVICE_PORT=8007
+      - OLLAMA_URL=http://ollama:11434
+      - MARKET_ANALYST_MODEL=mistral7b:latest
+      - MCP_CONFIG_FILE=config/market_analyst/market_analyst_mcps.yaml
+      - CONFIG_PATH=config/agent_parameters.yaml
+      - MARKET_ANALYSIS_INTERVAL=300
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_MARKET_ANALYST_CHANNEL=#market-analyst
+      - PYTHONPATH=/app
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+      - ./mcp-servers:/app/mcp-servers
+    depends_on:
+      - ollama
+      - slack-integration
+    command: ["python", "src/market_analyst/market_analyst_service.py"]
+    networks:
+      - agent-network
+
+  # Separate News Analyst Agent
+  news-analyst:
+    build: .
+    container_name: news-analyst-agent
+    restart: unless-stopped
+    ports:
+      - "8008:8008"
+    environment:
+      - SERVICE_PORT=8008
+      - OLLAMA_URL=http://ollama:11434
+      - NEWS_ANALYST_MODEL=mistral7b:latest
+      - MCP_CONFIG_FILE=config/news_analyst/news_analyst_mcps.yaml
+      - CONFIG_PATH=config/agent_parameters.yaml
+      - NEWS_ANALYSIS_INTERVAL=600
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_NEWS_ANALYST_CHANNEL=#news-analyst
+      - PYTHONPATH=/app
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+      - ./mcp-servers:/app/mcp-servers
+    depends_on:
+      - ollama
+      - slack-integration
+    command: ["python", "src/news_analyst/news_analyst_service.py"]
+    networks:
+      - agent-network
+
+  # Enhanced Mutual Scheduler
+  enhanced-scheduler:
+    build: .
+    container_name: enhanced-mutual-scheduler
+    restart: unless-stopped
+    ports:
+      - "8010:8010"
+    environment:
+      - SERVICE_PORT=8010
+      - CONFIG_PATH=config/agent_parameters.yaml
+      - MARKET_ANALYST_URL=http://market-analyst:8007
+      - NEWS_ANALYST_URL=http://news-analyst:8008
+      - RISK_MANAGER_URL=http://risk-manager:8002
+      - TRADE_EXECUTOR_URL=http://trade-executor:8005
+      - PARAMETER_OPTIMIZER_URL=http://parameter-optimizer:8006
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_ORCHESTRATOR_CHANNEL=#orchestrator
+      - AGENT_COOLDOWN_SECONDS=30
+      - ENABLE_MUTUAL_EXCLUSION=true
+      - PYTHONPATH=/app
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    depends_on:
+      - market-analyst
+      - news-analyst
+      - risk-manager
+      - trade-executor
+      - parameter-optimizer
+      - slack-integration
+    command: ["python", "src/enhanced_mutual_scheduler.py"]
+    networks:
+      - agent-network
+
+  # Slack Integration Service
+  slack-integration:
+    build: .
+    container_name: slack-integration-service
+    restart: unless-stopped
+    ports:
+      - "8009:8009"
+    environment:
+      - SERVICE_PORT=8009
+      - CONFIG_PATH=config/agent_parameters.yaml
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
+      - SLACK_MCP_ENABLED=true
+      - SLACK_MCP_SERVER_PATH=/app/mcp-servers/slack/cmd/slack-mcp-server/main.go
+      - SLACK_AUTHORIZED_USERS=${SLACK_AUTHORIZED_USERS}
+      - ENABLE_SLACK_PARAMETER_UPDATES=true
+      - PYTHONPATH=/app
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+      - ./mcp-servers:/app/mcp-servers
+      - ./.users_cache.json:/app/.users_cache.json
+      - ./.channels_cache_v2.json:/app/.channels_cache_v2.json
+    networks:
+      - agent-network
+
+  # Risk Manager Agent (updated)
+  risk-manager:
+    build: .
+    container_name: risk-manager-agent
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    environment:
+      - SERVICE_PORT=8002
+      - OLLAMA_URL=http://ollama:11434
+      - RISK_MANAGER_MODEL=mistral7b:latest
+      - MCP_CONFIG_FILE=config/agent_mcps/risk_manager_mcps.yaml
+      - CONFIG_PATH=config/agent_parameters.yaml
+      - DB_PATH=/app/database/paper_trading.db
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_RISK_MANAGER_CHANNEL=#risk-manager
+      - RISK_ANALYSIS_INTERVAL=120
+      - PYTHONPATH=/app
+    volumes:
+      - ./database:/app/database
+      - ./logs:/app/logs
+      - ./config:/app/config
+    depends_on:
+      - ollama
+      - database
+      - slack-integration
+    command: ["python", "src/signal_service.py"]
+    networks:
+      - agent-network
+
+  # Trade Executor Agent (updated)
+  trade-executor:
+    build: .
+    container_name: trade-executor-agent
+    restart: unless-stopped
+    ports:
+      - "8005:8005"
+    environment:
+      - SERVICE_PORT=8005
+      - OLLAMA_URL=http://ollama:11434
+      - TRADE_EXECUTOR_MODEL=phi3
+      - MCP_CONFIG_FILE=config/agent_mcps/trade_executor_mcps.yaml
+      - CONFIG_PATH=config/agent_parameters.yaml
+      - TRADE_API_KEY=${TRADE_API_KEY}
+      - TRADE_SECRET=${TRADE_SECRET}
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_TRADE_EXECUTOR_CHANNEL=#trade-executor
+      - TRADE_EXECUTION_INTERVAL=30
+      - PYTHONPATH=/app
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    depends_on:
+      - ollama
+      - slack-integration
+    command: ["python", "src/market_executor_service.py"]
+    networks:
+      - agent-network
+
+  # Parameter Optimizer Agent (updated)
+  parameter-optimizer:
+    build: .
+    container_name: parameter-optimizer-agent
+    restart: unless-stopped
+    ports:
+      - "8006:8006"
+    environment:
+      - SERVICE_PORT=8006
+      - MCP_CONFIG_FILE=config/agent_mcps/parameter_optimizer_mcps.yaml
+      - CONFIG_PATH=config/agent_parameters.yaml
+      - DB_PATH=/app/database/paper_trading.db
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_PARAMETER_OPTIMIZER_CHANNEL=#parameter-optimizer
+      - OPTIMIZATION_INTERVAL=3600
+      - PYTHONPATH=/app
+    volumes:
+      - ./database:/app/database
+      - ./logs:/app/logs
+      - ./config:/app/config
+    depends_on:
+      - database
+      - slack-integration
+    command: ["python", "src/parameter_optimizer_service.py"]
+    networks:
+      - agent-network
+
+  # Supporting Services
+  portfolio-service:
+    build: .
+    container_name: portfolio-service
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - SERVICE_PORT=8001
+      - CONFIG_PATH=config/agent_parameters.yaml
+      - DB_PATH=/app/database/paper_trading.db
+      - PYTHONPATH=/app
+    volumes:
+      - ./database:/app/database
+      - ./logs:/app/logs
+      - ./config:/app/config
+    depends_on:
+      - database
+    command: ["python", "src/portfolio_service.py"]
+    networks:
+      - agent-network
+
+  notification-service:
+    build: .
+    container_name: notification-service
+    restart: unless-stopped
+    ports:
+      - "8004:8004"
+    environment:
+      - SERVICE_PORT=8004
+      - CONFIG_PATH=config/agent_parameters.yaml
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - PYTHONPATH=/app
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    depends_on:
+      - slack-integration
+    command: ["python", "src/notification_service.py"]
+    networks:
+      - agent-network
+
+  # Main Orchestrator (updated to work with enhanced scheduler)
+  orchestrator:
+    build: .
+    container_name: agent-orchestrator
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - SERVICE_PORT=8000
+      - CONFIG_PATH=config/agent_parameters.yaml
+      - ENHANCED_SCHEDULER_URL=http://enhanced-scheduler:8010
+      - MARKET_ANALYST_URL=http://market-analyst:8007
+      - NEWS_ANALYST_URL=http://news-analyst:8008
+      - RISK_MANAGER_URL=http://risk-manager:8002
+      - TRADE_EXECUTOR_URL=http://trade-executor:8005
+      - PARAMETER_OPTIMIZER_URL=http://parameter-optimizer:8006
+      - PORTFOLIO_SERVICE_URL=http://portfolio-service:8001
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8004
+      - SLACK_INTEGRATION_URL=http://slack-integration:8009
+      - ORCHESTRATION_INTERVAL=60
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - PYTHONPATH=/app
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    depends_on:
+      - enhanced-scheduler
+      - market-analyst
+      - news-analyst
+      - risk-manager
+      - trade-executor
+      - parameter-optimizer
+      - portfolio-service
+      - notification-service
+      - slack-integration
+    command: ["python", "src/orchestrator_service.py"]
+    networks:
+      - agent-network
+
+  # AI Runtime (Ollama)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-runtime
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_ORIGINS=*
+    networks:
+      - agent-network
+    # Note: Models must be pulled manually after startup:
+    # docker exec ollama-runtime ollama pull mistral7b:latest
+    # docker exec ollama-runtime ollama pull phi3
+
+  # Database
+  database:
+    image: alpine:latest
+    container_name: trading-database
+    restart: unless-stopped
+    volumes:
+      - ./database:/data
+    networks:
+      - agent-network
+    command: ["tail", "-f", "/dev/null"]  # Keep container alive
+
+volumes:
+  ollama_models:
+    driver: local
+
+networks:
+  agent-network:
+    driver: bridge
+
+# Environment Variables Template (.env file)
+# Copy to .env and fill in your actual values:
+#
+# # AI Model Runtime
+# OLLAMA_URL=http://localhost:11434
+# 
+# # Trading APIs
+# TRADE_API_KEY=your_trade_api_key_here
+# TRADE_SECRET=your_trade_secret_here
+# 
+# # Slack Integration
+# SLACK_BOT_TOKEN=xoxb-your-slack-bot-token
+# SLACK_APP_TOKEN=xapp-your-slack-app-token
+# SLACK_AUTHORIZED_USERS=U1234567890,U0987654321
+# 
+# # Slack Channels
+# SLACK_MARKET_ANALYST_CHANNEL=#market-analyst
+# SLACK_NEWS_ANALYST_CHANNEL=#news-analyst
+# SLACK_RISK_MANAGER_CHANNEL=#risk-manager
+# SLACK_TRADE_EXECUTOR_CHANNEL=#trade-executor
+# SLACK_PARAMETER_OPTIMIZER_CHANNEL=#parameter-optimizer
+# SLACK_ORCHESTRATOR_CHANNEL=#orchestrator
+# SLACK_ALERTS_CHANNEL=#trading-alerts
+# SLACK_GENERAL_CHANNEL=#general
+# SLACK_SYSTEM_HEALTH_CHANNEL=#system-health
+# 
+# # Agent Configuration
+# MARKET_ANALYSIS_INTERVAL=300
+# NEWS_ANALYSIS_INTERVAL=600
+# RISK_ANALYSIS_INTERVAL=120
+# TRADE_EXECUTION_INTERVAL=30
+# OPTIMIZATION_INTERVAL=3600
+# 
+# # Mutual Exclusion Settings
+# AGENT_COOLDOWN_SECONDS=30
+# ENABLE_MUTUAL_EXCLUSION=true
+# MAX_CONCURRENT_MISTRAL=1
+# 
+# # Parameter Updates
+# ENABLE_SLACK_PARAMETER_UPDATES=true
+# SLACK_PARAMETER_UPDATE_CHANNEL=#parameter-updates
+# SLACK_ADMIN_CHANNEL=#admin
+# 
+# # System Configuration
+# ORCHESTRATION_INTERVAL=60
+# HEALTH_CHECK_INTERVAL=30
+# LOG_LEVEL=INFO

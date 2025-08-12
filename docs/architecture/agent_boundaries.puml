@@ -1,0 +1,176 @@
+@startuml agent_boundaries
+!theme plain
+title Agent Boundaries and Responsibilities
+
+!define COORDINATOR_COLOR #E1F5FE
+!define ANALYZER_COLOR #F3E5F5
+!define EXECUTOR_COLOR #E8F5E8
+!define OPTIMIZER_COLOR #FFF3E0
+!define SUPPORT_COLOR #FAFAFA
+
+package "Coordination Layer" as coordination {
+    component "Orchestrator Agent" as orchestrator <<COORDINATOR_COLOR>> {
+        [Decision Engine]
+        [Strategy Coordinator]
+        [System Monitor]
+        [Config Manager]
+    }
+}
+
+package "Analysis Layer" as analysis {
+    component "Market Analyst Agent" as market_analyst <<ANALYZER_COLOR>> {
+        [Technical Analysis]
+        [Fundamental Analysis]
+        [Market Data Processor]
+        [Signal Generator]
+    }
+    
+    component "News Analyst Agent" as news_analyst <<ANALYZER_COLOR>> {
+        [Sentiment Analysis]
+        [News Processor]
+        [Event Detector]
+        [Impact Assessor]
+    }
+    
+    component "Risk Manager Agent" as risk_manager <<ANALYZER_COLOR>> {
+        [Risk Calculator]
+        [Limit Monitor]
+        [Alert Generator]
+        [Compliance Checker]
+    }
+}
+
+package "Execution Layer" as execution {
+    component "Trade Executor Agent" as trade_executor <<EXECUTOR_COLOR>> {
+        [Order Manager]
+        [Execution Engine]
+        [Market Interface]
+        [Trade Validator]
+    }
+    
+    component "Portfolio Service" as portfolio <<EXECUTOR_COLOR>> {
+        [Position Manager]
+        [Balance Tracker]
+        [Performance Calculator]
+        [Account Synchronizer]
+    }
+}
+
+package "Optimization Layer" as optimization {
+    component "Parameter Optimizer Agent" as param_optimizer <<OPTIMIZER_COLOR>> {
+        [Strategy Backtester]
+        [ML Optimizer]
+        [Performance Analyzer]
+        [Parameter Tuner]
+    }
+}
+
+package "Support Layer" as support {
+    component "Notification Service" as notification <<SUPPORT_COLOR>> {
+        [Message Formatter]
+        [Alert Router]
+        [Slack Interface]
+        [Audit Logger]
+    }
+    
+    component "MCP Hub" as mcp_hub <<SUPPORT_COLOR>> {
+        [Server Coordinator]
+        [Capability Router]
+        [Load Balancer]
+        [Health Monitor]
+    }
+}
+
+' Responsibility boundaries
+rectangle "ORCHESTRATOR RESPONSIBILITIES" as orch_resp {
+    note as orch_note
+        • Central decision making
+        • Agent coordination
+        • Strategy management
+        • System health monitoring
+        • Configuration management
+        • Trading session control
+    end note
+}
+
+rectangle "ANALYSIS RESPONSIBILITIES" as analysis_resp {
+    note as analysis_note
+        Market Analyst:
+        • Technical indicator calculation
+        • Chart pattern recognition
+        • Market trend analysis
+        • Signal generation
+        
+        News Analyst:
+        • Real-time news processing
+        • Sentiment scoring
+        • Event impact assessment
+        
+        Risk Manager:
+        • Portfolio risk assessment
+        • Position sizing
+        • Stop-loss management
+        • Compliance monitoring
+    end note
+}
+
+rectangle "EXECUTION RESPONSIBILITIES" as exec_resp {
+    note as exec_note
+        Trade Executor:
+        • Order placement and management
+        • Market timing optimization
+        • Slippage minimization
+        • Trade validation
+        
+        Portfolio Service:
+        • Position tracking
+        • Balance management
+        • Performance calculation
+        • Account reconciliation
+    end note
+}
+
+rectangle "OPTIMIZATION RESPONSIBILITIES" as opt_resp {
+    note as opt_note
+        Parameter Optimizer:
+        • Strategy backtesting
+        • ML-based optimization
+        • Performance analysis
+        • Parameter fine-tuning
+        • Risk-return optimization
+    end note
+}
+
+' Data flow connections
+orchestrator --> market_analyst : "Request analysis"
+orchestrator --> news_analyst : "Request sentiment"
+orchestrator --> risk_manager : "Risk assessment"
+orchestrator --> trade_executor : "Execute trades"
+orchestrator --> param_optimizer : "Optimize strategy"
+
+market_analyst --> orchestrator : "Market signals"
+news_analyst --> orchestrator : "News impact"
+risk_manager --> orchestrator : "Risk metrics"
+trade_executor --> orchestrator : "Trade confirmations"
+param_optimizer --> orchestrator : "Optimized parameters"
+
+trade_executor <--> portfolio : "Position updates"
+risk_manager <--> portfolio : "Portfolio state"
+
+orchestrator --> notification : "System alerts"
+risk_manager --> notification : "Risk alerts"
+trade_executor --> notification : "Trade notifications"
+
+orchestrator <--> mcp_hub : "MCP coordination"
+market_analyst <--> mcp_hub : "Enhanced analysis"
+risk_manager <--> mcp_hub : "Risk processing"
+trade_executor <--> mcp_hub : "Trade validation"
+param_optimizer <--> mcp_hub : "ML optimization"
+
+' Boundary constraints
+orchestrator -.-> orch_resp : "Bounded by"
+analysis -.-> analysis_resp : "Bounded by"
+execution -.-> exec_resp : "Bounded by"
+optimization -.-> opt_resp : "Bounded by"
+
+@enduml

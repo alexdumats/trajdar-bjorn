@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Edit",
+      "Read", 
+      "Glob",
+      "Grep",
+      "Write",
+      "MultiEdit",
+      "LS",
+      "WebFetch"
+    ]
+  },
+  "project": {
+    "name": "AI Trading System",
+    "description": "Modular agent-based trading system with Ollama integration"
+  },
+  "workspace": {
+    "directories": [
+      "src",
+      "config", 
+      "scripts",
+      "database",
+      "logs"
+    ]
+  }
+}

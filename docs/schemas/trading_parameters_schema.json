@@ -1,0 +1,270 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-trading-system.com/schemas/trading_parameters.json",
+  "title": "Trading Parameters Configuration Schema",
+  "description": "Schema for trading strategy parameters configuration",
+  "type": "object",
+  "properties": {
+    "trading": {
+      "type": "object",
+      "properties": {
+        "symbol": {
+          "type": "string",
+          "pattern": "^[A-Z]{3,10}[A-Z]{3,10}$",
+          "description": "Trading pair symbol (e.g., BTCUSDC)"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["paper", "live"],
+          "description": "Trading mode"
+        },
+        "strategy": {
+          "type": "string",
+          "description": "Active trading strategy name"
+        },
+        "max_concurrent_trades": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "description": "Maximum concurrent trades"
+        },
+        "trade_amount_usd": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Trade amount in USD"
+        }
+      },
+      "required": ["symbol", "mode", "strategy"],
+      "additionalProperties": false
+    },
+    "strategies": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9_]*$": {
+          "$ref": "#/definitions/strategyParameters"
+        }
+      },
+      "additionalProperties": false
+    },
+    "risk_management": {
+      "type": "object",
+      "properties": {
+        "global_stop_loss": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Global stop loss percentage"
+        },
+        "global_take_profit": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Global take profit percentage"
+        },
+        "max_portfolio_risk": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Maximum portfolio risk percentage"
+        },
+        "risk_per_trade": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Risk per trade as percentage of portfolio"
+        },
+        "max_drawdown": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Maximum allowed drawdown"
+        },
+        "correlation_limit": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Maximum correlation between positions"
+        }
+      },
+      "additionalProperties": false
+    },
+    "backtesting": {
+      "type": "object",
+      "properties": {
+        "start_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Backtesting start date"
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Backtesting end date"
+        },
+        "initial_capital": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Initial capital for backtesting"
+        },
+        "commission": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.1,
+          "description": "Commission rate"
+        },
+        "slippage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.1,
+          "description": "Slippage percentage"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["trading", "strategies"],
+  "additionalProperties": false,
+  "definitions": {
+    "strategyParameters": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the strategy is enabled"
+        },
+        "position_size": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Position size as fraction of portfolio"
+        },
+        "stop_loss": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Stop loss percentage"
+        },
+        "take_profit": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Take profit percentage"
+        },
+        "min_confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Minimum confidence threshold"
+        },
+        "rsi_period": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 100,
+          "description": "RSI period for RSI-based strategies"
+        },
+        "rsi_oversold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 50,
+          "description": "RSI oversold threshold"
+        },
+        "rsi_overbought": {
+          "type": "number",
+          "minimum": 50,
+          "maximum": 100,
+          "description": "RSI overbought threshold"
+        },
+        "fast_period": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Fast period for MACD-based strategies"
+        },
+        "slow_period": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Slow period for MACD-based strategies"
+        },
+        "signal_period": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Signal period for MACD-based strategies"
+        },
+        "bb_period": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 100,
+          "description": "Bollinger Bands period"
+        },
+        "bb_std": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 5,
+          "description": "Bollinger Bands standard deviation"
+        },
+        "timeframe": {
+          "type": "string",
+          "enum": ["1m", "5m", "15m", "30m", "1h", "4h", "1d"],
+          "description": "Strategy timeframe"
+        },
+        "lookback_period": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "Lookback period for historical data"
+        },
+        "cooldown_period": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 86400,
+          "description": "Cooldown period between trades in seconds"
+        },
+        "max_trades_per_day": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "Maximum trades per day for this strategy"
+        },
+        "filters": {
+          "type": "object",
+          "properties": {
+            "volume_filter": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Minimum volume filter"
+            },
+            "volatility_filter": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Maximum volatility filter"
+            },
+            "trend_filter": {
+              "type": "boolean",
+              "description": "Enable trend filter"
+            },
+            "time_filter": {
+              "type": "object",
+              "properties": {
+                "start_time": {
+                  "type": "string",
+                  "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+                  "description": "Start time in HH:MM format"
+                },
+                "end_time": {
+                  "type": "string",
+                  "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+                  "description": "End time in HH:MM format"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

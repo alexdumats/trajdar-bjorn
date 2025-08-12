@@ -1,0 +1,37 @@
+{
+  "timestamp": "2025-08-11T22:15:36.535968",
+  "server_info": {
+    "id": "12345678",
+    "name": "ai-trading-prod",
+    "public_net": {
+      "ipv4": {
+        "ip": "192.168.1.100"
+      }
+    },
+    "status": "running",
+    "server_type": {
+      "name": "cx31"
+    },
+    "datacenter": {
+      "location": {
+        "name": "nbg1"
+      }
+    }
+  },
+  "deployment_config": {
+    "server_name": "ai-trading-prod",
+    "server_type": "cx31",
+    "location": "nbg1",
+    "image": "ubuntu-22.04",
+    "ssh_keys": [],
+    "labels": {
+      "environment": "production",
+      "project": "ai-trading-system",
+      "auto_backup": "true"
+    },
+    "user_data": "#cloud-config\nruncmd:\n  # Update system\n  - apt-get update && apt-get upgrade -y\n  \n  # Install Docker and Docker Compose\n  - curl -fsSL https://get.docker.com -o get-docker.sh\n  - sh get-docker.sh\n  - curl -L \"https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose\n  - chmod +x /usr/local/bin/docker-compose\n  \n  # Install Python, Git, and other dependencies\n  - apt-get install -y python3-pip git htop curl wget unzip\n  - pip3 install docker-compose\n  \n  # Install Go for Slack MCP server\n  - wget https://go.dev/dl/go1.21.0.linux-amd64.tar.gz\n  - tar -C /usr/local -xzf go1.21.0.linux-amd64.tar.gz\n  - echo 'export PATH=$PATH:/usr/local/go/bin' >> /etc/profile\n  \n  # Install Node.js for npm-based MCP servers\n  - curl -fsSL https://deb.nodesource.com/setup_18.x | bash -\n  - apt-get install -y nodejs\n  \n  # Create trading user\n  - useradd -m -s /bin/bash trading\n  - usermod -aG docker trading\n  \n  # Create application directory\n  - mkdir -p /opt/ai-trading-system\n  - chown trading:trading /opt/ai-trading-system\n  \n  # Create database and logs directories\n  - mkdir -p /opt/ai-trading-system/database\n  - mkdir -p /opt/ai-trading-system/logs\n  - chown -R trading:trading /opt/ai-trading-system\n\npackages:\n  - docker.io\n  - docker-compose\n  - python3\n  - python3-pip\n  - git\n  - curl\n  - wget\n  - htop\n  - ufw\n\nwrite_files:\n  - path: /etc/systemd/system/ai-trading-system.service\n    content: |\n      [Unit]\n      Description=AI Trading System\n      Requires=docker.service\n      After=docker.service\n      \n      [Service]\n      Type=forking\n      User=trading\n      WorkingDirectory=/opt/ai-trading-system\n      ExecStart=/usr/local/bin/docker-compose up -d\n      ExecStop=/usr/local/bin/docker-compose down\n      TimeoutStartSec=0\n      Restart=on-failure\n      StartLimitBurst=3\n      \n      [Install]\n      WantedBy=multi-user.target\n    permissions: '0644'\n\nfinal_message: |\n  AI Trading System server is ready for deployment!\n  Server configured with Docker, Docker Compose, Python, Go, and Node.js\n  Trading user created with Docker permissions\n  System service configured for auto-start\n"
+  },
+  "server_ip": "192.168.1.100",
+  "server_id": "12345678",
+  "deployment_script": "/Users/alexdumats/trajdar_bjorn/deploy/deploy_to_server.sh"
+}

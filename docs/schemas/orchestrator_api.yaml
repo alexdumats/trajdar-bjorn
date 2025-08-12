@@ -1,0 +1,228 @@
+openapi: 3.0.3
+info:
+  title: AI Trading System - Orchestrator Service API
+  description: Central coordination service for the AI multi-agent trading system
+  version: 1.0.0
+  contact:
+    name: AI Trading System
+    url: https://github.com/your-org/trajdar_bjorn
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://production-url:8000
+    description: Production server
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns the health status of the orchestrator service
+      operationId: getHealth
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  service:
+                    type: string
+                    example: "orchestrator"
+                  timestamp:
+                    type: string
+                    format: date-time
+                  orchestrating:
+                    type: boolean
+                    description: Whether the orchestrator is currently running
+                required:
+                  - status
+                  - service
+                  - timestamp
+                  - orchestrating
+
+  /system-status:
+    get:
+      summary: Get system-wide status
+      description: Returns the status of all connected services and agents
+      operationId: getSystemStatus
+      tags:
+        - System
+      responses:
+        '200':
+          description: System status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orchestrator:
+                    $ref: '#/components/schemas/ServiceStatus'
+                  portfolio:
+                    $ref: '#/components/schemas/ServiceStatus'
+                  risk_manager:
+                    $ref: '#/components/schemas/ServiceStatus'
+                  market_analyst:
+                    $ref: '#/components/schemas/ServiceStatus'
+                  trade_executor:
+                    $ref: '#/components/schemas/ServiceStatus'
+                  notification:
+                    $ref: '#/components/schemas/ServiceStatus'
+                  parameter_optimizer:
+                    $ref: '#/components/schemas/ServiceStatus'
+
+  /start-orchestration:
+    post:
+      summary: Start orchestration process
+      description: Begins the automated trading orchestration
+      operationId: startOrchestration
+      tags:
+        - Orchestration
+      responses:
+        '200':
+          description: Orchestration started successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Orchestration started"
+                  started_at:
+                    type: string
+                    format: date-time
+        '400':
+          description: Orchestration already running or cannot start
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /stop-orchestration:
+    post:
+      summary: Stop orchestration process
+      description: Stops the automated trading orchestration
+      operationId: stopOrchestration
+      tags:
+        - Orchestration
+      responses:
+        '200':
+          description: Orchestration stopped successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Orchestration stopped"
+                  stopped_at:
+                    type: string
+                    format: date-time
+
+  /orchestration-status:
+    get:
+      summary: Get orchestration status
+      description: Returns the current status of the orchestration process
+      operationId: getOrchestrationStatus
+      tags:
+        - Orchestration
+      responses:
+        '200':
+          description: Orchestration status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  is_orchestrating:
+                    type: boolean
+                  started_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  cycles_completed:
+                    type: integer
+                  last_cycle_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+
+  /manual-cycle:
+    post:
+      summary: Execute manual trading cycle
+      description: Triggers a single manual trading cycle
+      operationId: executeManualCycle
+      tags:
+        - Orchestration
+      responses:
+        '200':
+          description: Manual cycle executed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Manual cycle executed"
+                  cycle_id:
+                    type: string
+                  executed_at:
+                    type: string
+                    format: date-time
+        '400':
+          description: Cannot execute manual cycle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ServiceStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy, unknown]
+        url:
+          type: string
+        response_time_ms:
+          type: number
+          nullable: true
+        last_checked:
+          type: string
+          format: date-time
+        error:
+          type: string
+          nullable: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - error
+        - message
+        - timestamp
+
+tags:
+  - name: Health
+    description: Service health monitoring
+  - name: System
+    description: System-wide operations
+  - name: Orchestration
+    description: Trading orchestration control

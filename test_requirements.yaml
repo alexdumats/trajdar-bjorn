@@ -1,0 +1,37 @@
+# Requirement-to-Test Mapping for AI Trading Platform
+
+# Each test case should reference a business or technical requirement index.
+# Update this file whenever new requirements or tests are added.
+
+requirements:
+  - id: RQ-001
+    description: "Signal generation must detect market momentum and technical indicators."
+    tests:
+      - tests/unit/test_signal_service.py
+      - tests/integration/test_service_interactions.py
+
+  - id: RQ-002
+    description: "Portfolio management must track balances, positions, and trade history."
+    tests:
+      - tests/unit/test_portfolio_service.py
+      - tests/integration/test_service_interactions.py
+
+  - id: RQ-003
+    description: "Slack integration must send notifications and support parameter updates."
+    tests:
+      - tests/unit/test_slack_webhook_logger.py
+      - tests/unit/test_notification_service.py
+
+  - id: RQ-004
+    description: "Backtesting engine must validate strategy performance against profit/risk bounds."
+    tests:
+      - tests/unit/test_paper_trading_engine.py
+      - tests/performance/test_load_performance.py
+
+  - id: RQ-005
+    description: "System must support real-time health checks and alerting."
+    tests:
+      - tests/unit/test_notification_service.py
+      - tests/integration/test_service_interactions.py
+
+# Add more requirements and test mappings as needed.

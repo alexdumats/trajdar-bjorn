@@ -1,0 +1,45 @@
+{
+  "projectName": "AI Trading System",
+  "description": "An AI-powered trading system with MCP integration for automated cryptocurrency trading",
+  "version": "1.0.0",
+  "repository": "trajdar_bjorn",
+  "language": "python",
+  "frameworks": ["FastAPI", "Docker", "MCP"],
+  "mainEntryPoints": [
+    {
+      "name": "Orchestrator",
+      "path": "src/orchestrator_service.py",
+      "description": "Central coordination service for all AI agents"
+    },
+    {
+      "name": "MCP Hub",
+      "path": "src/mcp_hub/main.py",
+      "description": "Model Context Protocol server management"
+    }
+  ],
+  "keyComponents": [
+    {
+      "name": "Trading Services",
+      "paths": ["src/portfolio_service.py", "src/signal_service.py", "src/market_executor_service.py"],
+      "description": "Core trading functionality including portfolio management, signal generation, and trade execution"
+    },
+    {
+      "name": "Analysis Services",
+      "paths": ["src/market_analyst/market_analyst_service.py", "src/parameter_optimizer_service.py"],
+      "description": "Market analysis and parameter optimization services"
+    },
+    {
+      "name": "Support Services",
+      "paths": ["src/notification_service.py", "src/utils/"],
+      "description": "Supporting services including notifications and utilities"
+    },
+    {
+      "name": "Deployment",
+      "paths": ["deploy/"],
+      "description": "Deployment scripts and configuration for Hetzner Cloud infrastructure"
+    }
+  ],
+  "tags": ["trading", "ai", "cryptocurrency", "mcp", "hetzner", "docker", "fastapi"],
+  "contributors": ["Alex Dumats"],
+  "lastUpdated": "2025-08-12T03:42:00Z"
+}

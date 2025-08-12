@@ -1,0 +1,250 @@
+# Agent-Based Trading System Configuration
+# Comprehensive configuration for AI agents and orchestration
+
+system:
+  name: "AI Agent Trading System"
+  version: "3.0.0"
+  architecture: "agent-based"
+  description: "Modular AI agent-based trading system with specialized agents"
+
+# AI Agent Configurations
+agents:
+  risk_manager:
+    name: "Risk Manager Agent"
+    service_file: "signal_service.py"
+    port: 8002
+    model: "mistral7b:latest"
+    description: "AI-powered risk assessment and portfolio protection"
+    capabilities:
+      - portfolio_risk_analysis
+      - compliance_checking
+      - position_sizing
+      - stop_loss_management
+    mcp_config: "risk_manager_mcps.yaml"
+    health_check_interval: 30
+    restart_policy: "unless-stopped"
+
+  market_news_analyst:
+    name: "Market/News Analyst Agent"
+    service_file: "data_service.py"
+    port: 8003
+    model: "mistral7b:latest"
+    description: "AI-powered market analysis and news sentiment interpretation"
+    capabilities:
+      - market_data_analysis
+      - news_sentiment_analysis
+      - economic_indicator_tracking
+      - alternating_analysis_modes
+    mcp_config: "market_news_analyst_mcps.yaml"
+    analysis_interval: 300  # 5 minutes
+    mode_switch_interval: 600  # 10 minutes (alternating market/news)
+    health_check_interval: 30
+    restart_policy: "unless-stopped"
+
+  trade_executor:
+    name: "Trade Executor Agent"
+    service_file: "market_executor_service.py"
+    port: 8005
+    model: "phi3"
+    description: "AI-powered fast trade execution and compliance checking"
+    capabilities:
+      - fast_order_execution
+      - compliance_verification
+      - mcp_routing
+      - broker_integration
+    mcp_config: "trade_executor_mcps.yaml"
+    execution_interval: 30  # 30 seconds
+    health_check_interval: 15
+    restart_policy: "unless-stopped"
+
+  parameter_optimizer:
+    name: "Parameter Optimizer Service"
+    service_file: "parameter_optimizer_service.py"
+    port: 8006
+    model: "none"  # Python service, no LLM
+    description: "Hyperparameter optimization with Optuna integration"
+    capabilities:
+      - loss_event_monitoring
+      - parameter_optimization
+      - optuna_integration
+      - performance_tracking
+    mcp_config: "parameter_optimizer_mcps.yaml"
+    monitoring_interval: 30
+    optimization_interval: 3600  # 1 hour
+    health_check_interval: 60
+    restart_policy: "unless-stopped"
+
+# Supporting Services
+supporting_services:
+  portfolio_service:
+    name: "Portfolio Service"
+    service_file: "portfolio_service.py"
+    port: 8001
+    description: "Portfolio management and trade execution"
+    
+  notification_service:
+    name: "Notification Service"
+    service_file: "notification_service.py"
+    port: 8004
+    description: "Slack notifications and alerts"
+
+  orchestrator:
+    name: "Agent Orchestrator"
+    service_file: "orchestrator_service.py"
+    port: 8000
+    description: "Main coordinator for all AI agents"
+    orchestration_interval: 60  # 60 seconds
+    agent_coordination: true
+
+# AI Model Configuration
+ai_models:
+  ollama:
+    url: "http://localhost:11434"
+    models:
+      mistral7b:
+        name: "mistral7b:latest"
+        usage: "Risk Manager, Market/News Analyst"
+        memory_requirement: "8GB"
+        performance: "high_quality_analysis"
+      phi3:
+        name: "phi3"
+        usage: "Trade Executor"
+        memory_requirement: "4GB"
+        performance: "fast_execution"
+
+# Agent Orchestration Configuration
+orchestration:
+  enabled: true
+  interval: 60  # seconds
+  scheduling:
+    # Prevent resource conflicts by scheduling agents
+    risk_manager:
+      interval: 120  # Every 2 minutes
+      priority: high
+    market_analyst:
+      interval: 300  # Every 5 minutes (alternating with news)
+      priority: medium
+    news_analyst:
+      interval: 600  # Every 10 minutes (alternating with market)
+      priority: medium
+    trade_executor:
+      interval: 30   # Every 30 seconds
+      priority: critical
+    parameter_optimizer:
+      interval: 3600 # Every hour
+      priority: low
+
+# MCP Server Assignments
+mcp_assignments:
+  risk_manager:
+    required: ["sqlite", "phoenix"]
+    optional: ["slack"]
+  market_news_analyst:
+    required: ["yfinance", "coinpaprika", "fred"]
+    optional: ["chronulus", "slack"]
+  trade_executor:
+    required: ["trade_agent"]
+    optional: ["slack"]
+  parameter_optimizer:
+    required: ["optuna"]
+    optional: ["slack"]
+
+# System Resources and Limits
+resources:
+  memory:
+    risk_manager: "2GB"
+    market_news_analyst: "2GB" 
+    trade_executor: "1GB"
+    parameter_optimizer: "1GB"
+    orchestrator: "512MB"
+  
+  cpu:
+    risk_manager: "1.0"
+    market_news_analyst: "1.0"
+    trade_executor: "0.5"
+    parameter_optimizer: "0.5"
+    orchestrator: "0.5"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  files:
+    risk_manager: "logs/risk-manager.log"
+    market_news_analyst: "logs/market-news-analyst.log"
+    trade_executor: "logs/trade-executor.log"
+    parameter_optimizer: "logs/parameter-optimizer.log"
+    orchestrator: "logs/orchestrator.log"
+  max_file_size: "10MB"
+  backup_count: 5
+
+# Health Monitoring
+health_checks:
+  enabled: true
+  intervals:
+    agents: 30  # seconds
+    services: 30  # seconds
+    system: 60   # seconds
+  endpoints:
+    - "http://localhost:8000/health"  # orchestrator
+    - "http://localhost:8002/health"  # risk manager
+    - "http://localhost:8003/health"  # market/news analyst
+    - "http://localhost:8005/health"  # trade executor
+    - "http://localhost:8006/health"  # parameter optimizer
+
+# Security Configuration
+security:
+  api_keys:
+    required: ["TRADE_API_KEY", "TRADE_SECRET", "FRED_API_KEY", "SLACK_BOT_TOKEN"]
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 60
+  cors:
+    enabled: true
+    allowed_origins: ["http://localhost:*"]
+
+# Development and Deployment
+deployment:
+  environment: "development"  # development, staging, production
+  docker:
+    enabled: true
+    compose_file: "docker-compose.agents.yml"
+  
+  startup_order:
+    1: ["database", "ollama", "mcp-hub"]
+    2: ["portfolio-service", "notification-service"] 
+    3: ["risk-manager", "market-news-analyst", "trade-executor", "parameter-optimizer"]
+    4: ["orchestrator"]
+
+  shutdown_order:
+    1: ["orchestrator"]
+    2: ["risk-manager", "market-news-analyst", "trade-executor", "parameter-optimizer"]
+    3: ["portfolio-service", "notification-service"]
+    4: ["database", "ollama", "mcp-hub"]
+
+# Backup and Recovery
+backup:
+  database:
+    enabled: true
+    interval: "daily"
+    retention: 30  # days
+  configurations:
+    enabled: true
+    interval: "weekly"
+  logs:
+    enabled: true
+    retention: 14  # days
+
+# Performance Monitoring
+monitoring:
+  metrics:
+    - system_health
+    - agent_performance
+    - trade_execution_times
+    - memory_usage
+    - api_response_times
+  alerts:
+    - agent_downtime
+    - high_memory_usage
+    - failed_trades
+    - optimization_failures

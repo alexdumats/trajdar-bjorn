@@ -1,0 +1,455 @@
+openapi: 3.0.3
+info:
+  title: AI Trading System - Risk Manager Service API
+  description: Risk assessment and monitoring service for the AI trading system
+  version: 1.0.0
+servers:
+  - url: http://localhost:8002
+    description: Local development server
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      operationId: getHealth
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /assess_risk:
+    post:
+      summary: Assess trading risk
+      operationId: assessRisk
+      tags:
+        - Risk Assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RiskAssessmentRequest'
+      responses:
+        '200':
+          description: Risk assessment completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskAssessmentResponse'
+
+  /portfolio_risk:
+    get:
+      summary: Get portfolio risk metrics
+      operationId: getPortfolioRisk
+      tags:
+        - Portfolio Risk
+      responses:
+        '200':
+          description: Portfolio risk metrics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortfolioRiskMetrics'
+
+  /validate_trade:
+    post:
+      summary: Validate trade against risk limits
+      operationId: validateTrade
+      tags:
+        - Trade Validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TradeValidationRequest'
+      responses:
+        '200':
+          description: Trade validation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TradeValidationResponse'
+
+  /risk_limits:
+    get:
+      summary: Get current risk limits
+      operationId: getRiskLimits
+      tags:
+        - Risk Limits
+      responses:
+        '200':
+          description: Risk limits retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskLimits'
+
+    post:
+      summary: Update risk limits
+      operationId: updateRiskLimits
+      tags:
+        - Risk Limits
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RiskLimitsUpdate'
+      responses:
+        '200':
+          description: Risk limits updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  updated_at:
+                    type: string
+                    format: date-time
+
+  /risk_alerts:
+    get:
+      summary: Get recent risk alerts
+      operationId: getRiskAlerts
+      tags:
+        - Risk Monitoring
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [LOW, MEDIUM, HIGH, CRITICAL]
+      responses:
+        '200':
+          description: Risk alerts retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  alerts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RiskAlert'
+
+  /stress_test:
+    post:
+      summary: Run portfolio stress test
+      operationId: runStressTest
+      tags:
+        - Stress Testing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StressTestRequest'
+      responses:
+        '200':
+          description: Stress test completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StressTestResponse'
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "healthy"
+        service:
+          type: string
+          example: "risk_manager"
+        timestamp:
+          type: string
+          format: date-time
+
+    RiskAssessmentRequest:
+      type: object
+      properties:
+        symbol:
+          type: string
+          example: "BTCUSDT"
+        side:
+          type: string
+          enum: [BUY, SELL]
+        quantity:
+          type: number
+          format: double
+        price:
+          type: number
+          format: double
+        strategy:
+          type: string
+      required:
+        - symbol
+        - side
+        - quantity
+
+    RiskAssessmentResponse:
+      type: object
+      properties:
+        risk_score:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+        risk_level:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL]
+        max_position_size:
+          type: number
+          format: double
+        recommended_stop_loss:
+          type: number
+          format: double
+        recommended_take_profit:
+          type: number
+          format: double
+        warnings:
+          type: array
+          items:
+            type: string
+        risk_factors:
+          type: object
+          properties:
+            volatility_risk:
+              type: number
+              format: double
+            concentration_risk:
+              type: number
+              format: double
+            correlation_risk:
+              type: number
+              format: double
+            liquidity_risk:
+              type: number
+              format: double
+
+    PortfolioRiskMetrics:
+      type: object
+      properties:
+        total_value:
+          type: number
+          format: double
+        value_at_risk_1d:
+          type: number
+          format: double
+        value_at_risk_7d:
+          type: number
+          format: double
+        expected_shortfall:
+          type: number
+          format: double
+        sharpe_ratio:
+          type: number
+          format: double
+        max_drawdown:
+          type: number
+          format: double
+        beta:
+          type: number
+          format: double
+        correlation_matrix:
+          type: object
+        concentration_risk:
+          type: number
+          format: double
+        leverage_ratio:
+          type: number
+          format: double
+
+    TradeValidationRequest:
+      type: object
+      properties:
+        symbol:
+          type: string
+        side:
+          type: string
+          enum: [BUY, SELL]
+        quantity:
+          type: number
+          format: double
+        price:
+          type: number
+          format: double
+        order_type:
+          type: string
+          enum: [MARKET, LIMIT]
+      required:
+        - symbol
+        - side
+        - quantity
+
+    TradeValidationResponse:
+      type: object
+      properties:
+        is_valid:
+          type: boolean
+        validation_errors:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+        adjusted_quantity:
+          type: number
+          format: double
+          nullable: true
+        risk_impact:
+          type: object
+          properties:
+            portfolio_risk_increase:
+              type: number
+              format: double
+            concentration_impact:
+              type: number
+              format: double
+
+    RiskLimits:
+      type: object
+      properties:
+        max_position_size_percent:
+          type: number
+          format: double
+        max_daily_loss_percent:
+          type: number
+          format: double
+        max_portfolio_var:
+          type: number
+          format: double
+        max_leverage:
+          type: number
+          format: double
+        max_correlation:
+          type: number
+          format: double
+        stop_loss_threshold:
+          type: number
+          format: double
+
+    RiskLimitsUpdate:
+      type: object
+      properties:
+        max_position_size_percent:
+          type: number
+          format: double
+          nullable: true
+        max_daily_loss_percent:
+          type: number
+          format: double
+          nullable: true
+        max_portfolio_var:
+          type: number
+          format: double
+          nullable: true
+        max_leverage:
+          type: number
+          format: double
+          nullable: true
+
+    RiskAlert:
+      type: object
+      properties:
+        id:
+          type: string
+        alert_type:
+          type: string
+          enum: [POSITION_LIMIT, VAR_BREACH, DRAWDOWN, CORRELATION, VOLATILITY]
+        severity:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL]
+        message:
+          type: string
+        symbol:
+          type: string
+          nullable: true
+        metric_value:
+          type: number
+          format: double
+        threshold_value:
+          type: number
+          format: double
+        created_at:
+          type: string
+          format: date-time
+        acknowledged:
+          type: boolean
+
+    StressTestRequest:
+      type: object
+      properties:
+        scenario_type:
+          type: string
+          enum: [MARKET_CRASH, VOLATILITY_SPIKE, CORRELATION_BREAKDOWN, LIQUIDITY_CRISIS]
+        market_shock_percent:
+          type: number
+          format: double
+          default: -10.0
+        duration_days:
+          type: integer
+          default: 5
+
+    StressTestResponse:
+      type: object
+      properties:
+        scenario:
+          type: string
+        portfolio_loss:
+          type: number
+          format: double
+        portfolio_loss_percent:
+          type: number
+          format: double
+        worst_position_loss:
+          type: number
+          format: double
+        recovery_time_estimate:
+          type: integer
+          description: Days to recover losses
+        stress_metrics:
+          type: object
+          properties:
+            max_var:
+              type: number
+              format: double
+            stressed_sharpe:
+              type: number
+              format: double
+            correlation_breakdown:
+              type: boolean
+
+tags:
+  - name: Health
+    description: Service health monitoring
+  - name: Risk Assessment
+    description: Individual trade risk assessment
+  - name: Portfolio Risk
+    description: Portfolio-level risk metrics
+  - name: Trade Validation
+    description: Pre-trade risk validation
+  - name: Risk Limits
+    description: Risk limit management
+  - name: Risk Monitoring
+    description: Risk alert monitoring
+  - name: Stress Testing
+    description: Portfolio stress testing

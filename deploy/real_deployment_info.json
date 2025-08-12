@@ -1,0 +1,11 @@
+{
+  "timestamp": "2025-08-11T22:21:03.107028",
+  "server_id": 106485967,
+  "server_ip": "91.99.103.119",
+  "server_name": "ai-trading-prod",
+  "deployment_script": "/Users/alexdumats/trajdar_bjorn/deploy/deploy_real_server.sh",
+  "access_urls": {
+    "system": "http://91.99.103.119:8000",
+    "mcp_hub": "http://91.99.103.119:9000"
+  }
+}

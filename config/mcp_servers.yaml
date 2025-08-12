@@ -1,0 +1,259 @@
+# Optimized MCP Server Configuration for Production
+# Uses external APIs and minimal local servers to reduce resource usage
+
+servers:
+  # Core Trading & Financial Data (used by agents)
+  trade_agent:
+    name: "Trade Agent MCP"
+    repository: "https://github.com/Trade-Agent/trade-agent-mcp"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@trade-agent/mcp"]
+    description: "Advanced trading execution and order management"
+    capabilities:
+      - execute_strategy
+      - order_management
+      - compliance_checks
+      - risk_assessment
+    env:
+      TRADE_API_KEY: "${TRADE_API_KEY}"
+      TRADE_SECRET: "${TRADE_SECRET}"
+    autoApprove:
+      - execute_strategy
+      - order_management
+    disabled: false
+
+  coinpaprika:
+    name: "Coinpaprika Dexpaprika"
+    repository: "https://github.com/coinpaprika/dexpaprika-mcp"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@coinpaprika/dexpaprika-mcp"]
+    description: "DeFi market data and DEX analytics"
+    capabilities:
+      - dex_data
+      - defi_analytics
+      - token_metrics
+      - liquidity_analysis
+
+  yfinance:
+    name: "YFinance MCP"
+    repository: "https://github.com/Adity-star/mcp-yfinance-server"
+    type: "stdio"
+    command: "python"
+    args: ["-m", "mcp_yfinance_server"]
+    description: "Yahoo Finance data integration"
+    capabilities:
+      - stock_data
+      - market_data
+      - financial_metrics
+      - historical_prices
+
+  fred:
+    name: "FRED Economic Data"
+    repository: "https://github.com/stefanoamorelli/fred-mcp-server"
+    type: "stdio"
+    command: "python"
+    args: ["-m", "fred_mcp_server"]
+    description: "Federal Reserve economic data"
+    capabilities:
+      - economic_indicators
+      - fed_data
+      - macro_analysis
+      - interest_rates
+    env:
+      FRED_API_KEY: "${FRED_API_KEY}"
+
+  # AI & Analytics (used by agents)
+  phoenix:
+    name: "Phoenix ML Observability"
+    repository: "https://github.com/Arize-ai/phoenix/tree/main/js/packages/phoenix-mcp"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@arize/phoenix-mcp"]
+    description: "ML model observability and monitoring"
+    capabilities:
+      - model_monitoring
+      - performance_tracking
+      - drift_detection
+      - explainability
+
+  chronulus:
+    name: "Chronulus AI"
+    repository: "https://github.com/ChronulusAI/chronulus-mcp"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@chronulusai/mcp"]
+    description: "Time series forecasting and prediction"
+    capabilities:
+      - time_series_forecast
+      - market_prediction
+      - trend_analysis
+      - volatility_modeling
+
+  optuna:
+    name: "Optuna Optimization"
+    repository: "https://github.com/optuna/optuna-mcp"
+    type: "stdio"
+    command: "python"
+    args: ["-m", "optuna_mcp"]
+    description: "Hyperparameter optimization for trading strategies"
+    capabilities:
+      - hyperparameter_tuning
+      - strategy_optimization
+      - performance_optimization
+      - automated_ml
+
+  # Documentation & Knowledge Management
+  notion:
+    name: "Notion MCP Server"
+    repository: "https://github.com/makenotion/notion-mcp-server"
+    type: "stdio"
+    command: "npx"
+    args: ["-y", "@notionhq/notion-mcp-server"]
+    description: "Notion workspace integration for documentation and knowledge management"
+    capabilities:
+      - create_page
+      - update_page
+      - read_page
+      - search_pages
+      - create_database
+      - query_database
+      - append_block_children
+    env:
+      NOTION_TOKEN: "${NOTION_TOKEN}"
+    autoApprove:
+      - read_page
+      - search_pages
+      - query_database
+    disabled: false
+
+  # Communication & Notifications (shared by all agents)
+  slack:
+    name: "Slack MCP Server - Nova Workspace"
+    repository: "https://github.com/korotovsky/slack-mcp-server"
+    type: "sse"
+    endpoint: "http://localhost:3001"
+    description: "Enhanced Slack integration with Nova workspace (nova-mir4286.slack.com)"
+    capabilities:
+      - conversations_history
+      - conversations_replies
+      - conversations_add_message
+      - conversations_search_messages
+      - channels_list
+      - message_posting
+      - channel_management
+      - dm_support
+      - thread_support
+    env:
+      SLACK_MCP_XOXP_TOKEN: "${SLACK_MCP_XOXP_TOKEN}"
+      SLACK_MCP_ADD_MESSAGE_TOOL: "${SLACK_MCP_ADD_MESSAGE_TOOL}"
+      SLACK_MCP_LOG_LEVEL: "${SLACK_MCP_LOG_LEVEL}"
+      SLACK_MCP_HOST: "${SLACK_MCP_HOST}"
+      SLACK_MCP_PORT: "${SLACK_MCP_PORT}"
+      SLACK_MCP_USERS_CACHE: "${SLACK_MCP_USERS_CACHE}"
+      SLACK_MCP_CHANNELS_CACHE: "${SLACK_MCP_CHANNELS_CACHE}"
+      SLACK_NOVA_TARGET_CHANNEL: "${SLACK_NOVA_TARGET_CHANNEL}"
+      SLACK_NOVA_WORKSPACE: "${SLACK_NOVA_WORKSPACE}"
+      SLACK_NOVA_TEAM_ID: "${SLACK_NOVA_TEAM_ID}"
+    autoApprove:
+      - conversations_history
+      - conversations_add_message
+      - channels_list
+    disabled: false
+
+  # Data & Database (used by Risk Manager)
+  sqlite:
+    name: "SQLite MCP"
+    repository: "https://github.com/modelcontextprotocol/servers-archived/tree/main/src/sqlite"
+    type: "stdio"
+    command: "python"
+    args: ["-m", "mcp_sqlite"]
+    description: "SQLite database operations"
+    capabilities:
+      - database_queries
+      - data_storage
+      - trade_history
+      - performance_tracking
+    env:
+      SQLITE_DB_PATH: "${DB_PATH}"
+
+  # Cloud Infrastructure (for deployment)
+  hetzner:
+    name: "Hetzner Cloud MCP"
+    repository: "https://github.com/dkruyt/mcp-hetzner"
+    type: "stdio"
+    command: "python"
+    args: ["-m", "mcp_hetzner.server"]
+    description: "Hetzner Cloud server management and deployment"
+    capabilities:
+      - server_management
+      - deployment_automation
+      - resource_monitoring
+      - network_management
+      - volume_management
+      - firewall_configuration
+    env:
+      HETZNER_API_TOKEN: "${HETZNER_API_TOKEN}"
+    autoApprove:
+      - server_list
+      - server_status
+      - resource_monitoring
+    disabled: false
+
+# Research & Academic Tools
+arxiv:
+  name: "ArXiv MCP Server"
+  repository: "https://github.com/blazickjp/arxiv-mcp-server"
+  type: "stdio"
+  command: "uv"
+  args: ["tool", "run", "arxiv-mcp-server"]
+  description: "Access to arXiv research papers and academic content"
+  capabilities:
+    - search_papers
+    - download_paper
+    - read_paper
+    - list_papers
+  env:
+    ARXIV_STORAGE_PATH: "${ARXIV_STORAGE_PATH}"
+  autoApprove:
+    - search_papers
+    - list_papers
+  disabled: false
+
+# REMOVED SERVERS (unnecessary for agent-based architecture):
+# - debugg_ai: Debugging not needed in production
+# - pipedream: Workflow automation handled by orchestrator
+# - zapier: Automation handled by orchestrator
+# - graphlit: Graph analytics not required
+# - serena: Redundant AI agent
+# - compass: Navigation utilities not needed
+# - server_generator: Development tool, not production
+
+# Environment variables required for clean MCP configuration
+environment_variables:
+  # Trading APIs
+  TRADE_API_KEY: "your_trade_api_key"
+  TRADE_SECRET: "your_trade_secret"
+  
+  # Data APIs
+  FRED_API_KEY: "your_fred_api_key"
+  
+  # Communication
+  SLACK_BOT_TOKEN: "your_slack_bot_token"
+  
+  # Documentation
+  NOTION_TOKEN: "your_notion_token"
+  
+  # Database
+  DB_PATH: "/app/database/trading_mcp.db"
+  
+  # Cloud Infrastructure
+  HETZNER_API_TOKEN: "your_hetzner_api_token"
+  
+  # General
+  MCP_LOG_LEVEL: "INFO"
+  MCP_TIMEOUT: "30"
+  
+  # ArXiv
+  ARXIV_STORAGE_PATH: "/Users/alexdumats/trajdar_bjorn/mcp-servers/arxiv-mcp-server/papers"

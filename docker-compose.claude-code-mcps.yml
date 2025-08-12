@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  fetch-mcp:
+    image: node:18-alpine
+    container_name: fetch-mcp
+    working_dir: /app
+    volumes:
+      - ./mcp-data:/app/data
+    command: >
+      sh -c "npm install -g @modelcontextprotocol/server-fetch && 
+             npx @modelcontextprotocol/server-fetch"
+    environment:
+      - MCP_LOG_LEVEL=INFO
+      - MCP_TIMEOUT=30
+    ports:
+      - "3001:3000"
+    restart: unless-stopped
+
+  filesystem-mcp:
+    image: node:18-alpine
+    container_name: filesystem-mcp
+    working_dir: /app
+    volumes:
+      - ./:/app/workspace
+      - ./mcp-data:/app/data
+    command: >
+      sh -c "npm install -g @modelcontextprotocol/server-filesystem && 
+             npx @modelcontextprotocol/server-filesystem /app/workspace"
+    environment:
+      - MCP_LOG_LEVEL=INFO
+      - MCP_TIMEOUT=30
+    ports:
+      - "3002:3000"
+    restart: unless-stopped
+
+  memory-mcp:
+    image: node:18-alpine
+    container_name: memory-mcp
+    working_dir: /app
+    volumes:
+      - ./mcp-data:/app/data
+    command: >
+      sh -c "npm install -g @modelcontextprotocol/server-memory && 
+             npx @modelcontextprotocol/server-memory"
+    environment:
+      - MCP_LOG_LEVEL=INFO
+      - MCP_TIMEOUT=30
+    ports:
+      - "3003:3000"
+    restart: unless-stopped
+
+  git-mcp:
+    image: node:18-alpine
+    container_name: git-mcp
+    working_dir: /app
+    volumes:
+      - ./mcp-data:/app/data
+      - ./mcp-data/git:/app/git
+    command: >
+      sh -c "apk add --no-cache git && 
+             npm install -g @modelcontextprotocol/server-git && 
+             npx @modelcontextprotocol/server-git"
+    environment:
+      - MCP_LOG_LEVEL=INFO
+      - MCP_TIMEOUT=30
+      - GIT_WORKSPACE=/app/git
+    ports:
+      - "3004:3000"
+    restart: unless-stopped
+
+  sequentialthinking-mcp:
+    image: node:18-alpine
+    container_name: sequentialthinking-mcp
+    working_dir: /app
+    volumes:
+      - ./mcp-data:/app/data
+    command: >
+      sh -c "npm install -g @modelcontextprotocol/server-sequential-thinking && 
+             npx @modelcontextprotocol/server-sequential-thinking"
+    environment:
+      - MCP_LOG_LEVEL=INFO
+      - MCP_TIMEOUT=30
+    ports:
+      - "3005:3000"
+    restart: unless-stopped
+
+  time-mcp:
+    image: python:3.10-alpine
+    container_name: time-mcp
+    working_dir: /app
+    volumes:
+      - ./mcp-data:/app/data
+    command: >
+      sh -c "pip install mcp-server-time && 
+             python -m mcp_server_time"
+    environment:
+      - MCP_LOG_LEVEL=INFO
+      - MCP_TIMEOUT=30
+    ports:
+      - "3006:3000"
+    restart: unless-stopped
+
+  context7-mcp:
+    image: node:18-alpine
+    container_name: context7-mcp
+    working_dir: /app
+    volumes:
+      - ./mcp-data:/app/data
+    command: >
+      sh -c "npm install -g @upstash/context7-mcp && 
+             npx @upstash/context7-mcp"
+    environment:
+      - MCP_LOG_LEVEL=INFO
+      - MCP_TIMEOUT=30
+    ports:
+      - "3007:3000"
+    restart: unless-stopped
+
+networks:
+  default:
+    name: claude-code-mcps
+    driver: bridge

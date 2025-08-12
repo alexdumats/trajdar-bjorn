@@ -1,0 +1,32 @@
+[
+    {
+        "signal": "BUY",
+        "confidence": 85.0,
+        "technical_indicators": {
+            "rsi": 25.5,
+            "macd": {"macd": 150, "signal": 100, "histogram": 50},
+            "bollinger_bands": {"position": "LOWER"}
+        },
+        "timestamp": "2024-01-01T12:00:00Z"
+    },
+    {
+        "signal": "SELL", 
+        "confidence": 80.0,
+        "technical_indicators": {
+            "rsi": 75.5,
+            "macd": {"macd": -150, "signal": -100, "histogram": -50},
+            "bollinger_bands": {"position": "UPPER"}
+        },
+        "timestamp": "2024-01-01T12:05:00Z"
+    },
+    {
+        "signal": "HOLD",
+        "confidence": 60.0,
+        "technical_indicators": {
+            "rsi": 50.0,
+            "macd": {"macd": 0, "signal": 0, "histogram": 0},
+            "bollinger_bands": {"position": "MIDDLE"}
+        },
+        "timestamp": "2024-01-01T12:10:00Z"
+    }
+]

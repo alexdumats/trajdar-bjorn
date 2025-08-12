@@ -1,0 +1,116 @@
+@startuml data_flow
+!theme plain
+title Data Flow Architecture - MCP, Slack, and System Integration
+
+!define INPUT_COLOR #E3F2FD
+!define PROCESS_COLOR #F3E5F5
+!define OUTPUT_COLOR #E8F5E8
+!define STORAGE_COLOR #FFF8E1
+
+package "External Data Sources" as external {
+    cloud "Binance API\n- Market Data\n- Account Info\n- Trade Execution" as binance <<INPUT_COLOR>>
+    cloud "Federal Reserve\n- Economic Indicators\n- Interest Rates" as fed <<INPUT_COLOR>>
+    cloud "News APIs\n- Market Sentiment\n- Breaking News" as news_api <<INPUT_COLOR>>
+    cloud "Slack API\n- Commands\n- Notifications" as slack <<INPUT_COLOR>>
+}
+
+package "MCP Integration Layer" as mcp_layer {
+    component "MCP Hub\n:9000" as mcp_hub <<PROCESS_COLOR>>
+    
+    package "MCP Servers" as mcp_servers {
+        component "Market Analysis\nMCP" as mcp_market <<PROCESS_COLOR>>
+        component "Risk Assessment\nMCP" as mcp_risk <<PROCESS_COLOR>>
+        component "Trade Execution\nMCP" as mcp_trade <<PROCESS_COLOR>>
+        component "Parameter Optimization\nMCP" as mcp_param <<PROCESS_COLOR>>
+        component "Notification\nMCP" as mcp_notify <<PROCESS_COLOR>>
+        component "Data Processing\nMCP (11+ servers)" as mcp_data <<PROCESS_COLOR>>
+    }
+}
+
+package "Core Services" as services {
+    component "Orchestrator\n:8000" as orchestrator <<PROCESS_COLOR>>
+    component "Market Analyst\n:8003" as analyst <<PROCESS_COLOR>>
+    component "Risk Manager\n:8002" as risk <<PROCESS_COLOR>>
+    component "Trade Executor\n:8005" as executor <<PROCESS_COLOR>>
+    component "Parameter Optimizer\n:8006" as optimizer <<PROCESS_COLOR>>
+    component "Portfolio Service\n:8001" as portfolio <<PROCESS_COLOR>>
+    component "Notification Service\n:8004" as notification <<PROCESS_COLOR>>
+}
+
+package "Data Storage" as storage {
+    database "Trading Database\n- Positions\n- Orders\n- History" as trade_db <<STORAGE_COLOR>>
+    database "Market Database\n- OHLCV Data\n- Indicators\n- Signals" as market_db <<STORAGE_COLOR>>
+    database "Risk Database\n- Metrics\n- Limits\n- Alerts" as risk_db <<STORAGE_COLOR>>
+    storage "Configuration\n- YAML Files\n- Parameters" as config <<STORAGE_COLOR>>
+    storage "Logs\n- Application\n- Audit\n- Error" as logs <<STORAGE_COLOR>>
+}
+
+package "Output Systems" as outputs {
+    cloud "Slack Channels\n- Alerts\n- Reports\n- Status" as slack_out <<OUTPUT_COLOR>>
+    cloud "Binance Orders\n- Buy/Sell\n- Stop Loss\n- Take Profit" as binance_out <<OUTPUT_COLOR>>
+    file "Reports\n- Backtest Results\n- Performance\n- Risk Metrics" as reports <<OUTPUT_COLOR>>
+}
+
+' External data ingestion
+binance --> analyst : "Real-time market data"
+fed --> analyst : "Economic data"
+news_api --> analyst : "News sentiment"
+slack --> notification : "Commands & webhooks"
+
+' MCP data processing
+analyst --> mcp_hub : "Raw data processing"
+mcp_hub --> mcp_market : "Market analysis"
+mcp_hub --> mcp_data : "Data transformation"
+
+risk --> mcp_hub : "Risk calculations"
+mcp_hub --> mcp_risk : "Risk assessment"
+
+executor --> mcp_hub : "Trade validation"
+mcp_hub --> mcp_trade : "Order processing"
+
+optimizer --> mcp_hub : "ML optimization"
+mcp_hub --> mcp_param : "Parameter tuning"
+
+notification --> mcp_hub : "Message formatting"
+mcp_hub --> mcp_notify : "Alert processing"
+
+' Data storage flows
+analyst --> market_db : "Processed market data"
+risk --> risk_db : "Risk metrics"
+portfolio --> trade_db : "Position updates"
+orchestrator --> config : "Configuration updates"
+orchestrator --> logs : "System logs"
+
+' Inter-service data flows
+orchestrator <--> portfolio : "Portfolio state"
+orchestrator <--> risk : "Risk assessments"
+orchestrator <--> analyst : "Market insights"
+orchestrator <--> executor : "Trade instructions"
+orchestrator <--> optimizer : "Strategy parameters"
+
+' Output data flows
+notification --> slack_out : "Formatted alerts"
+executor --> binance_out : "Trade orders"
+optimizer --> reports : "Backtest results"
+
+' Configuration and audit flows
+config --> orchestrator : "System configuration"
+config --> portfolio : "Trading parameters"
+config --> risk : "Risk limits"
+logs --> reports : "Audit trails"
+
+note right of mcp_hub
+  Central coordination point for:
+  - 16+ MCP servers
+  - Enhanced AI capabilities
+  - Data transformation
+  - Cross-service communication
+end note
+
+note bottom of slack
+  Bidirectional integration:
+  - Incoming: Commands, config updates
+  - Outgoing: Alerts, reports, status
+end note
+
+@enduml

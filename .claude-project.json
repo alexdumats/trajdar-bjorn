@@ -1,0 +1,33 @@
+{
+  "name": "AI Trading System",
+  "description": "Modular agent-based trading system with Ollama integration",
+  "version": "3.0.0",
+  "allowedTools": [
+    "Bash",
+    "Edit", 
+    "Read",
+    "Glob",
+    "Grep",
+    "Write",
+    "MultiEdit",
+    "LS",
+    "WebFetch"
+  ],
+  "directories": {
+    "src": "AI agent services and utilities",
+    "config": "Agent configurations and MCP settings",
+    "scripts": "Management and deployment scripts",
+    "database": "Trading database",
+    "logs": "System logs"
+  },
+  "key_components": {
+    "agents": [
+      "src/signal_service.py - Risk Manager (mistral7b)",
+      "src/data_service.py - Market/News Analyst (mistral7b)",
+      "src/market_executor_service.py - Trade Executor (phi3)",
+      "src/parameter_optimizer_service.py - Parameter Optimizer"
+    ],
+    "orchestration": "src/orchestrator_service.py",
+    "deployment": "docker-compose.agents.yml"
+  }
+}

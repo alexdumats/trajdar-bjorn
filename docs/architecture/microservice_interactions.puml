@@ -1,0 +1,93 @@
+@startuml microservice_interactions
+!theme plain
+title Microservice Interaction Sequences
+
+actor User as user
+participant "Orchestrator\n:8000" as orchestrator
+participant "Portfolio\n:8001" as portfolio
+participant "Risk Manager\n:8002" as risk
+participant "Market Analyst\n:8003" as analyst
+participant "Notification\n:8004" as notification
+participant "Trade Executor\n:8005" as executor
+participant "Parameter Optimizer\n:8006" as optimizer
+participant "MCP Hub\n:9000" as mcp
+participant "Binance API" as binance
+participant "Slack API" as slack
+
+== Trading Decision Flow ==
+user -> orchestrator: Start Trading Session
+orchestrator -> analyst: GET /analyze_market
+analyst -> binance: Fetch market data
+analyst -> mcp: Enhanced analysis
+analyst --> orchestrator: Market analysis results
+
+orchestrator -> risk: POST /assess_risk
+risk -> portfolio: GET /current_positions
+portfolio --> risk: Current portfolio state
+risk --> orchestrator: Risk assessment
+
+orchestrator -> optimizer: POST /optimize_parameters
+optimizer -> mcp: ML optimization
+optimizer --> orchestrator: Optimized parameters
+
+orchestrator -> executor: POST /execute_trade
+executor -> binance: Place trade order
+executor --> orchestrator: Trade confirmation
+
+orchestrator -> portfolio: POST /update_position
+portfolio -> binance: Sync account state
+portfolio --> orchestrator: Updated portfolio
+
+orchestrator -> notification: POST /send_alert
+notification -> slack: Send trade notification
+notification --> orchestrator: Notification sent
+
+== Health Monitoring Flow ==
+loop Every 30 seconds
+    orchestrator -> portfolio: GET /health
+    portfolio --> orchestrator: Health status
+    
+    orchestrator -> risk: GET /health
+    risk --> orchestrator: Health status
+    
+    orchestrator -> analyst: GET /health
+    analyst --> orchestrator: Health status
+    
+    orchestrator -> executor: GET /health
+    executor --> orchestrator: Health status
+    
+    alt Any service unhealthy
+        orchestrator -> notification: POST /send_alert
+        notification -> slack: Alert unhealthy service
+    end
+end
+
+== Configuration Update Flow ==
+user -> slack: Send config update command
+slack -> notification: Webhook notification
+notification -> orchestrator: POST /update_config
+orchestrator -> mcp: Validate config
+orchestrator -> portfolio: POST /update_config
+orchestrator -> risk: POST /update_config
+orchestrator -> analyst: POST /update_config
+orchestrator -> executor: POST /update_config
+orchestrator -> notification: POST /send_confirmation
+notification -> slack: Config update confirmed
+
+== Backtest Validation Flow ==
+user -> orchestrator: POST /run_backtest
+orchestrator -> optimizer: POST /backtest_strategy
+optimizer -> analyst: Historical market data
+optimizer -> risk: Risk validation
+optimizer --> orchestrator: Backtest results
+
+alt Results meet thresholds
+    orchestrator -> notification: POST /send_report
+    notification -> slack: Success report
+    orchestrator -> portfolio: POST /promote_strategy
+else Results fail validation
+    orchestrator -> notification: POST /send_alert
+    notification -> slack: Failure alert
+end
+
+@enduml

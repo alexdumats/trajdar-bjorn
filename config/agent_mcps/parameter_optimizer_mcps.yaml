@@ -1,0 +1,65 @@
+agent_description: Hyperparameter optimization with Optuna integration
+agent_name: parameter_optimizer
+environment_variables:
+  DB_PATH: /app/database/paper_trading.db
+  FRED_API_KEY: your_fred_api_key
+  MCP_LOG_LEVEL: INFO
+  MCP_TIMEOUT: '30'
+  SLACK_BOT_TOKEN: your_slack_bot_token
+  TRADE_API_KEY: your_trade_api_key
+  TRADE_SECRET: your_trade_secret
+model: none
+servers:
+  optuna:
+    args:
+    - -m
+    - optuna_mcp
+    capabilities:
+    - hyperparameter_tuning
+    - strategy_optimization
+    - performance_optimization
+    - automated_ml
+    - loss_event_tracking
+    command: python
+    description: Hyperparameter optimization for trading strategies
+    name: Optuna Optimization
+    repository: https://github.com/optuna/optuna-mcp
+    type: stdio
+shared_services:
+  chronulus:
+    args:
+    - -y
+    - '@chronulusai/mcp'
+    capabilities:
+    - time_series_forecast
+    - market_prediction
+    - trend_analysis
+    - volatility_modeling
+    command: npx
+    description: Time series forecasting and prediction
+    name: Chronulus AI
+    repository: https://github.com/ChronulusAI/chronulus-mcp
+    type: stdio
+  slack:
+    args:
+    - run
+    - /Users/alexdumats/trajdar_bjorn/mcp-servers/slack/cmd/slack-mcp-server/main.go
+    - --transport
+    - stdio
+    autoApprove:
+    - conversations_add_message
+    capabilities:
+    - conversations_history
+    - conversations_add_message
+    - message_posting
+    - channel_management
+    command: go
+    description: Enhanced Slack integration for agent notifications
+    disabled: false
+    env:
+      SLACK_MCP_ADD_MESSAGE_TOOL: 'true'
+      SLACK_MCP_LOG_LEVEL: info
+      SLACK_MCP_XOXP_TOKEN: ${SLACK_BOT_TOKEN}
+    name: Slack MCP Server
+    repository: https://github.com/korotovsky/slack-mcp-server
+    type: stdio

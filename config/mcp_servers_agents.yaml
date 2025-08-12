@@ -1,0 +1,177 @@
+# Agent-Specific MCP Server Configuration
+# Updated to match user-provided agent/MCP mapping
+
+agent_configurations:
+  signal_generator:
+    name: "Signal Generator Agent"
+    model: "mistral7b:latest"
+    description: "Market analysis, technical indicators, momentum detection"
+    mcp_servers:
+      news_fetcher_twitter:
+        name: "Twitter News Fetcher MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/twitter_news_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["twitter_sentiment", "trending_analysis", "influencer_tracking"]
+        update_frequency: "5_minutes"
+      news_fetcher_reddit:
+        name: "Reddit News Fetcher MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/reddit_news_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["reddit_sentiment", "community_analysis", "discussion_trends"]
+        update_frequency: "15_minutes"
+      news_fetcher_financial:
+        name: "Financial News Fetcher MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/financial_news_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["financial_news", "market_events", "regulatory_updates"]
+        update_frequency: "30_minutes"
+      market_data_binance:
+        name: "Binance Market Data MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/binance_market_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["real_time_prices", "order_book", "trade_history", "kline_data"]
+        update_frequency: "real_time"
+      market_data_coingecko:
+        name: "CoinGecko Market Data MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/coingecko_market_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["market_cap", "volume_analysis", "price_history", "coin_metrics"]
+        update_frequency: "5_minutes"
+      market_data_cryptocompare:
+        name: "CryptoCompare Market Data MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/cryptocompare_market_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["historical_data", "technical_indicators", "market_analysis"]
+        update_frequency: "10_minutes"
+      market_data_feargreed:
+        name: "Fear & Greed Index MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/feargreed_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["fear_greed_index", "sentiment_metrics", "market_psychology"]
+        update_frequency: "1_hour"
+
+  risk_manager:
+    name: "Risk Manager Agent"
+    model: "llama3.2"
+    description: "Portfolio protection, loss limits, safety monitoring"
+    mcp_servers:
+      market_data_binance:
+        name: "Binance Market Data MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/binance_market_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["real_time_prices", "order_book", "trade_history", "kline_data"]
+        update_frequency: "real_time"
+      market_data_coingecko:
+        name: "CoinGecko Market Data MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/coingecko_market_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["market_cap", "volume_analysis", "price_history", "coin_metrics"]
+        update_frequency: "5_minutes"
+      market_data_cryptocompare:
+        name: "CryptoCompare Market Data MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/cryptocompare_market_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["historical_data", "technical_indicators", "market_analysis"]
+        update_frequency: "10_minutes"
+      market_data_feargreed:
+        name: "Fear & Greed Index MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/feargreed_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["fear_greed_index", "sentiment_metrics", "market_psychology"]
+        update_frequency: "1_hour"
+      trading_client_binance:
+        name: "Binance Trading Client MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/binance_trading_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["order_execution", "account_management", "position_tracking"]
+        security_level: "high"
+      trading_client_paper:
+        name: "Paper Trading Client MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/paper_trading_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["simulated_trading", "backtesting", "strategy_testing"]
+        security_level: "low"
+
+  trade_executor:
+    name: "Trade Executor Agent"
+    model: "mistral7b:latest"
+    description: "Order placement, execution timing, position management"
+    mcp_servers:
+      market_data_binance:
+        name: "Binance Market Data MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/binance_market_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["real_time_prices", "order_book", "trade_history", "kline_data"]
+        update_frequency: "real_time"
+      trading_client_binance:
+        name: "Binance Trading Client MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/binance_trading_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["order_execution", "account_management", "position_tracking"]
+        security_level: "high"
+      trading_client_paper:
+        name: "Paper Trading Client MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/paper_trading_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["simulated_trading", "backtesting", "strategy_testing"]
+        security_level: "low"
+
+  system_monitor:
+    name: "System Monitor Agent"
+    model: "llama3.2"
+    description: "Process coordination, health checks, service management"
+    mcp_servers:
+      logging_database:
+        name: "Database Logging MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/database_logging_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["trade_logging", "system_metrics", "audit_trails"]
+        retention_policy: "90_days"
+      logging_slack:
+        name: "Slack Notification MCP"
+        command: "python3"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/scripts/slack_logging_mcp_server.py"]
+        transport: "stdio"
+        capabilities: ["real_time_alerts", "error_notifications", "performance_reports"]
+        alert_levels: ["critical", "warning", "info"]
+      file_analysis:
+        name: "FileScopeMCP Trading Analysis"
+        command: "node"
+        args: ["/Users/alexdumats/Documents/augment-projects/trejdar_anders/repos/FileScopeMCP/src/mcp-server.ts"]
+        transport: "stdio"
+        capabilities: ["codebase_analysis", "dependency_tracking", "file_importance_ranking"]
+        env: {"NODE_OPTIONS": "--loader ts-node/esm"}
+      code_analyzer:
+        name: "CodeLogic Analysis Server"
+        command: "uv"
+        args: ["--directory", "/Users/alexdumats/Documents/augment-projects/trejdar_anders/repos/codelogic-mcp-server", "run", "codelogic-mcp-server"]
+        transport: "stdio"
+        capabilities: ["method_impact_analysis", "database_impact_analysis", "code_quality_assessment"]
+        env: {"CODELOGIC_DEBUG_MODE": "true"}
+
+# Environment variables required for agent MCP configurations
+environment_variables:
+  DB_PATH: "/app/database/paper_trading.db"
+  TRADE_API_KEY: "9K81DQ17gvi20buFQyisiHyDRhEv4e30S5P7hAMGtjUXYKAPxhGeagGIbX0CvMaK"
+  TRADE_SECRET: "Q7cTovQksjOdw8hAcOaXoeMsehzvtmva8SdHI4f59If2RRcuEqIIcF411bI9c7f9"
+  FRED_API_KEY: "9e0b08df506771345de789a964ad115b"
+  SLACK_BOT_TOKEN: "https://hooks.slack.com/services/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"
+  MCP_LOG_LEVEL: "INFO"
+  MCP_TIMEOUT: "30"
